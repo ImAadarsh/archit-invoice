@@ -97,7 +97,7 @@ Kirti Nagar, New  Delhi – 110015 <br>
                 <table class="tm_mb15">
                   <tbody>
                 <tr id class="tm_accent_bg">
-                  <td class="tm_width_4 tm_border_top_0   tm_white_color"><b>Amount in Words:</b><br> Five Hundered Only </td>
+                  <td class="tm_width_4 tm_border_top_0   tm_white_color"><b>Amount in Words:</b><br> <span id="amount_chargeable_words"></span></td>
                 </tr>
                 </tbody>
                 </table>
@@ -164,6 +164,52 @@ Kirti Nagar, New  Delhi – 110015 <br>
   <script src="assets/js/html2canvas.min.js"></script>
   <script src="assets/js/main.js"></script>
   <script>
+    function amountToWords(amount) {
+      amount = Math.ceil(amount).toFixed(2);
+      const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
+    const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    const unitsTenths = ['Tenths', 'Hundredths'];
+
+    const convert = (n) => {
+        if (n < 10) return units[n];
+        if (n < 20) return teens[n - 10];
+        return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + units[n % 10] : '');
+    };
+
+    const handleDecimal = (n) => {
+        if (n === 0) return '';
+        const str = String(n).split('.')[1];
+        if (!str) return '';
+        const firstDigit = Number(str[0]);
+        const secondDigit = Number(str[1]);
+        let result = '';
+        if (firstDigit !== 0) result += ' ' + units[firstDigit] + ' ' + unitsTenths[0];
+        if (secondDigit !== 0) result += ' ' + units[secondDigit] + ' ' + unitsTenths[1];
+        return result;
+    };
+
+    if (amount === 0) return 'Zero';
+    if (amount < 10) return units[amount] + handleDecimal(amount);
+    if (amount < 100) return convert(amount) + handleDecimal(amount);
+
+    const thousands = Math.floor(amount / 1000);
+    const hundreds = Math.floor((amount % 1000) / 100);
+    const remainder = amount % 100;
+    const remainderStr = remainder !== 0 ? ' ' + convert(remainder) : '';
+
+    let result = '';
+    if (thousands > 0) {
+        result += convert(thousands) + ' Thousand';
+    }
+    if (hundreds > 0) {
+        result += ' ' + convert(hundreds) + ' Hundred';
+    }
+    result += remainderStr + handleDecimal(amount - Math.floor(amount));
+    result = result.trim() + ' Only/-';
+
+    return result;
+}
     // Fetch data from API and populate HTML
     $(document).ready(function() {
       // Extract invoice ID from page URL
@@ -230,7 +276,9 @@ $('#cgst').text(response.data.total_cgst !== null ? response.data.total_cgst : '
 $('#igst').text(response.data.total_igst !== null ? response.data.total_igst : '0.00');
 
 // Populate Amount Chargeable
-$('#amount_chargeable').text(response.data.total_amount !== null ? response.data.total_amount : '0.00');
+$('#amount_chargeable').text(response.data.total_amount !== null ? (Math.ceil(response.data.total_amount)).toFixed(2) : '0.00');
+$('#amount_chargeable_words').text(amountToWords(response.data.total_amount !== null ? response.data.total_amount : 0));
+
 
         },
         error: function(xhr, status, error) {
