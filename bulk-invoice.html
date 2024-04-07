@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html class="no-js" lang="en">
 
@@ -18,7 +17,53 @@
     <div class="tm_invoice_wrap">
       <div class="tm_invoice tm_style1 tm_type1" id="tm_download_section">
         <div class="tm_invoice_in">
+          <!-- Invoice template will be populated dynamically here -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="assets/js/jquery.min.js"></script>
+  <script src="assets/js/jspdf.min.js"></script>
+  <script src="assets/js/html2canvas.min.js"></script>
+  <script src="assets/js/main.js"></script>
+  <script>
+    $(document).ready(function() {
+      // Extract business ID and location ID
+      var businessId = 1; // Example: replace with actual business ID
+      var locationId = 1; // Example: replace with actual location ID
+
+      // Fetch all invoices
+      $.ajax({
+        url: 'http://127.0.0.1:8000/api/getAllInvoices',
+        type: 'GET',
+        success: function(allInvoicesResponse) {
+          // Iterate through all invoices
+          allInvoicesResponse.data.forEach(function(invoiceData) {
+            // Fetch detailed invoice for each invoice
+            $.ajax({
+              url: 'https://api.architartgallery.in/public/api/getDetailedInvoice/' + invoiceData.id,
+              type: 'GET',
+              success: function(detailedInvoiceResponse) {
+                // Populate HTML elements with detailed invoice data
+                populateInvoiceTemplate(detailedInvoiceResponse.data);
+              },
+              error: function(xhr, status, error) {
+                console.error('Error fetching detailed invoice data:', error);
+              }
+            });
+          });
+        },
+        error: function(xhr, status, error) {
+          console.error('Error fetching all invoices:', error);
+        }
+      });
+
+      // Function to populate HTML template with invoice data
+      function populateInvoiceTemplate(invoiceData) {
+        // Create invoice template
+        var invoiceTemplate = `
           <div class="tm_invoice_head tm_top_head tm_mb15 tm_align_center">
+            <!-- Invoice header content -->
             <div class="tm_invoice_left">
               <div class="tm_logo"><img src="assets/img/archit.svg" alt="Logo"></div>
             </div>
@@ -28,9 +73,9 @@
             <div class="tm_shape_bg tm_accent_bg tm_mobile_hide"></div>
           </div>
           <div class="tm_invoice_info tm_mb25">
-            <div class="tm_card_note tm_mobile_hide"><b i class="tm_primary_color">Payment Method: </b> <span id="payment_method"></span> <br>  <b class="tm_primary_color">Date: </b><span id="invoice_date"></span> </div>
+            <div class="tm_card_note tm_mobile_hide"><b class="tm_primary_color">Payment Method: </b> <span id="payment_method">${invoiceData.payment_mode}</span> <br>  <b class="tm_primary_color">Date: </b><span id="invoice_date">${invoiceData.invoice_date}</span> </div>
             <div class="tm_invoice_info_list tm_white_color">
-              <p class="tm_invoice_number tm_m0" id="invoice_number"></p>
+              <p class="tm_invoice_number tm_m0" id="invoice_number">Invoice No: #${invoiceData.serial_no}</p>
               <p class="tm_invoice_date tm_m0">GSTIN: <b>07AADPA2039E1ZF</b></p>
             </div>
             <div class="tm_invoice_seperator tm_accent_bg"></div>
@@ -42,6 +87,10 @@
                 <!-- Lowell H. Dominguez <br>
                 84 Spilman Street, London <br>United Kingdom <br>
                 lowell@gmail.com -->
+                ${invoiceData.name}<br>
+                ${invoiceData.billing_address.address_1}, ${invoiceData.billing_address.address_2}<br>
+                ${invoiceData.billing_address.city}, ${invoiceData.billing_address.state}, ${invoiceData.billing_address.pincode}<br>
+                <b>Mobile Number: </b>${invoiceData.mobile_number}<br>
               </p>
             </div>
             <div class="tm_invoice_right tm_text_right">
@@ -50,11 +99,9 @@
                 Archit Art Gallery<br>
                 Shop No: 28 
                 Kirti Nagar Furniture Block, <br>
-Kirti Nagar, New  Delhi – 110015 <br>
-<b>Ph. No: +91- 9868 200 002<br>
-  +91- 9289 388 374</b>
-
-
+                Kirti Nagar, New  Delhi – 110015 <br>
+                <b>Ph. No: +91- 9868 200 002<br>
+                +91- 9289 388 374</b>
               </p>
             </div>
           </div>
@@ -73,16 +120,8 @@ Kirti Nagar, New  Delhi – 110015 <br>
                       <th class="tm_width_3 tm_semi_bold tm_white_color tm_text_right">Total Value</th>
                     </tr>
                   </thead>
-                  <tbody id="item_details">
-                    <!-- <tr >
-                      <td class="tm_width_1">1</td>
-                      <td class="tm_width_4">Picture Frame</td>
-                      <td class="tm_width_2">3256</td>
-                      <td class="tm_width_1">5</td>
-                      <td class="tm_width_2">100</td>
-                      <td class="tm_width_3 tm_text_right">500</td>
-                    </tr> -->
-                    
+                  <tbody>
+                    ${populateInvoiceItems(invoiceData.items)}
                   </tbody>
                 </table>
               </div>
@@ -95,10 +134,10 @@ Kirti Nagar, New  Delhi – 110015 <br>
             
                 <table class="tm_mb15">
                   <tbody>
-                <tr id class="tm_accent_bg">
-                  <td class="tm_width_4 tm_border_top_0   tm_white_color"><b>Amount in Words:</b><br> Five Hundered Only </td>
-                </tr>
-                </tbody>
+                    <tr class="tm_accent_bg">
+                      <td class="tm_width_4 tm_border_top_0 tm_white_color"><b>Amount in Words:</b><br> Five Hundered Only </td>
+                    </tr>
+                  </tbody>
                 </table>
               </div>
               <div class="tm_right_footer">
@@ -106,35 +145,33 @@ Kirti Nagar, New  Delhi – 110015 <br>
                   <tbody>
                     <tr class="tm_gray_bg ">
                       <td class="tm_width_3 tm_primary_color ">Less Discount</td>
-                      <td class="tm_width_3 tm_primary_color tm_text_right" id="less_discount">0.00</td>
+                      <td class="tm_width_3 tm_primary_color tm_text_right" id="less_discount">${invoiceData.discount !== null ? invoiceData.discount : '0.00'}</td>
                     </tr>
                     <tr class="tm_gray_bg ">
                       <td class="tm_width_3 tm_primary_color tm_bold">Total Value of Goods:</td>
-                      <td class="tm_width_3 tm_primary_color tm_bold tm_text_right" id="total_value_of_goods">0.00</td>
+                      <td class="tm_width_3 tm_primary_color tm_bold tm_text_right" id="total_value_of_goods">${invoiceData.total_amount_without_gst !== null ? invoiceData.total_amount_without_gst : '0.00'}</td>
                     </tr>
                     <tr class="tm_gray_bg ">
                       <td class="tm_width_5 tm_primary_color ">Delhi GST <span class="tm_ternary_color"> @ 9 %</span></td>
-                      <td class="tm_width_5 tm_primary_color  tm_text_right" id="delhi_gst">0.00</td>
+                      <td class="tm_width_5 tm_primary_color  tm_text_right" id="delhi_gst">${invoiceData.total_dgst !== null ? invoiceData.total_dgst : '0.00'}</td>
                     </tr>
                     <tr class="tm_gray_bg ">
                       <td class="tm_width_5 tm_primary_color ">CGST <span class="tm_ternary_color"> @ 9 %</span></td>
-                      <td class="tm_width_5 tm_primary_color  tm_text_right" id="cgst">0.00</td>
+                      <td class="tm_width_5 tm_primary_color  tm_text_right" id="cgst">${invoiceData.total_cgst !== null ? invoiceData.total_cgst : '0.00'}</td>
                     </tr>
                     <tr class="tm_gray_bg ">
                       <td class="tm_width_5 tm_primary_color ">IGST <span class="tm_ternary_color"> @ 18 %</span></td>
-                      <td class="tm_width_5 tm_primary_color  tm_text_right" id="igst">0.00</td>
+                      <td class="tm_width_5 tm_primary_color  tm_text_right" id="igst">${invoiceData.total_igst !== null ? invoiceData.total_igst : '0.00'}</td>
                     </tr>
                     
                     <tr class="tm_accent_bg">
                       <td class="tm_width_5 tm_border_top_0 tm_bold tm_f16 tm_white_color">Amount Chargeable</td>
-                      <td class="tm_width_5 tm_border_top_0 tm_bold tm_f16 tm_white_color tm_text_right" id="amount_chargeable">0.00</td>
+                      <td class="tm_width_5 tm_border_top_0 tm_bold tm_f16 tm_white_color tm_text_right" id="amount_chargeable">${invoiceData.total_amount !== null ? invoiceData.total_amount : '0.00'}</td>
                     </tr>
-                    
                   </tbody>
                 </table>
               </div>
             </div>
-            
           </div>
           <div class="tm_note tm_text_center tm_font_style_normal">
             <hr class="tm_mb15">
@@ -145,6 +182,7 @@ Kirti Nagar, New  Delhi – 110015 <br>
           </div><!-- .tm_note -->
         </div>
       </div>
+  
       <div class="tm_invoice_btns tm_hide_print">
         <a href="javascript:window.print()" class="tm_invoice_btn tm_color1">
           <span class="tm_btn_icon">
@@ -158,85 +196,29 @@ Kirti Nagar, New  Delhi – 110015 <br>
           </span>
           <span class="tm_btn_text">Download</span>
         </button>
-      </div>
-    </div>
-  </div>
-  <script src="assets/js/jquery.min.js"></script>
-  <script src="assets/js/jspdf.min.js"></script>
-  <script src="assets/js/html2canvas.min.js"></script>
-  <script src="assets/js/main.js"></script>
-  <script>
-    // Fetch data from API and populate HTML
-    $(document).ready(function() {
-      // Extract invoice ID from page URL
-      var urlParams = new URLSearchParams(window.location.search);
-      var invoiceId = urlParams.get('invoiceId');
+      </div>`;
+        
+        // Append the invoice template to the appropriate element
+        $("#tm_download_section .tm_invoice_in").append(invoiceTemplate);
+      }
 
-      // Fetch data from API
-      $.ajax({
-        url: 'https://api.architartgallery.in/public/api/getDetailedInvoice/' + invoiceId,
-        type: 'GET',
-        success: function(response) {
-          // Populate HTML elements with API data
-          $('#invoice_number').text('Invoice No: #' + response.data.serial_no);
-          // Populate Item Details
-          var itemDetailsHtml = '';
-          response.data.items.forEach(function(item, index) {
-            itemDetailsHtml += '<tr>' +
-                               '<td class="tm_width_1">' + (index + 1) + '</td>' +
-                               '<td class="tm_width_4">' + item.product.name + '</td>' +
-                               '<td class="tm_width_2">' + item.product.hsn_code + '</td>' +
-                               '<td class="tm_width_1">' + item.quantity + '</td>' +
-                               '<td class="tm_width_2">' + item.price_of_one + '</td>' +
-                               '<td class="tm_width_3 tm_text_right">' + item.price_of_all + '</td>' +
-                               '</tr>';
-          });
-
-          // Populate Payment Method and Invoice Date
-          $('#payment_method').text(response.data.payment_mode);
-          $('#invoice_date').text(response.data.invoice_date);
-
-          // Populate Invoice To
-          var invoiceToHtml = response.data.name + '<br>' +
-                              response.data.billing_address.address_1 + ', ' +
-                              response.data.billing_address.address_2 + '<br>' +
-                              response.data.billing_address.city + ', ' +
-                              response.data.billing_address.state + ', ' +
-                              response.data.billing_address.pincode + '<br>' +
-                              '<b>Mobile Number: </b>'+response.data.mobile_number + '<br>';
-          $('#invoice_to').html(invoiceToHtml);
-          $('#item_details').html(itemDetailsHtml);
-          $('#customer_name').text(response.data.name);
-
-           // Populate Totals
-           var totalsHtml = '<tr class="tm_gray_bg">' +
-            '<td class="tm_width_3 tm_primary_color ">Total Value of Goods:</td>' +
-            '<td class="tm_width_3 tm_primary_color tm_bold tm_text_right">' + response.data.total_amount + '</td>' +
+      // Function to populate invoice items
+      function populateInvoiceItems(items) {
+        var itemDetailsHtml = '';
+        items.forEach(function(item, index) {
+          itemDetailsHtml += '<tr>' +
+            '<td class="tm_width_1">' + (index + 1) + '</td>' +
+            '<td class="tm_width_4">' + item.product.name + '</td>' +
+            '<td class="tm_width_2">' + item.product.hsn_code + '</td>' +
+            '<td class="tm_width_1">' + item.quantity + '</td>' +
+            '<td class="tm_width_2">' + item.price_of_one + '</td>' +
+            '<td class="tm_width_3 tm_text_right">' + item.price_of_all + '</td>' +
             '</tr>';
-$('#totals').html(totalsHtml);
-          // Populate other fields similarly
-          // Populate other fields similarly
-// Populate Discount
-
-
-// Populate Total Value of Goods
-// Populate Total Value of Goods
-$('#total_value_of_goods').text(response.data.total_amount_without_gst !== null ? response.data.total_amount_without_gst : '0.00');
-
-// Populate GST values
-$('#delhi_gst').text(response.data.total_dgst !== null ? response.data.total_dgst : '0.00');
-$('#cgst').text(response.data.total_cgst !== null ? response.data.total_cgst : '0.00');
-$('#igst').text(response.data.total_igst !== null ? response.data.total_igst : '0.00');
-
-// Populate Amount Chargeable
-$('#amount_chargeable').text(response.data.total_amount !== null ? response.data.total_amount : '0.00');
-
-        },
-        error: function(xhr, status, error) {
-          console.error('Error fetching data from API:', error);
-        }
-      });
+        });
+        return itemDetailsHtml;
+      }
     });
   </script>
 </body>
+
 </html>

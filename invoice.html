@@ -6,8 +6,9 @@
   <!-- Meta Tags -->
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <link rel="icon" type="image/jpg" href="archit-fav.jpg">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="author" content="Laralink">
+  <meta name="author" content="Endeavour Digital">
   <!-- Site Title -->
   <title>Archit Invoice</title>
   <link rel="stylesheet" href="assets/css/style.css">
@@ -170,7 +171,7 @@ Kirti Nagar, New  Delhi – 110015 <br>
     $(document).ready(function() {
       // Extract invoice ID from page URL
       var urlParams = new URLSearchParams(window.location.search);
-      var invoiceId = urlParams.get('invoiceId');
+      var invoiceId = urlParams.get('invoiceid');
 
       // Fetch data from API
       $.ajax({
