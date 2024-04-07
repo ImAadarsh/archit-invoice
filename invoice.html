@@ -179,14 +179,17 @@ Kirti Nagar, New  Delhi – 110015 <br>
           $('#invoice_number').text('Invoice No: #' + response.data.serial_no);
           // Populate Item Details
           var itemDetailsHtml = '';
+          var goods_price = 0;
           response.data.items.forEach(function(item, index) {
+            var oneprice = item.quantity*item.price_of_one;
+            goods_price = oneprice+goods_price;
             itemDetailsHtml += '<tr>' +
                                '<td class="tm_width_1">' + (index + 1) + '</td>' +
                                '<td class="tm_width_4">' + item.product.name + '</td>' +
                                '<td class="tm_width_2">' + item.product.hsn_code + '</td>' +
                                '<td class="tm_width_1">' + item.quantity + '</td>' +
                                '<td class="tm_width_2">' + item.price_of_one + '</td>' +
-                               '<td class="tm_width_3 tm_text_right">' + item.price_of_all + '</td>' +
+                               '<td class="tm_width_3 tm_text_right">' + oneprice + '</td>' +
                                '</tr>';
           });
 
@@ -219,7 +222,7 @@ $('#totals').html(totalsHtml);
 
 // Populate Total Value of Goods
 // Populate Total Value of Goods
-$('#total_value_of_goods').text(response.data.total_amount_without_gst !== null ? response.data.total_amount_without_gst : '0.00');
+$('#total_value_of_goods').text(goods_price);
 
 // Populate GST values
 $('#delhi_gst').text(response.data.total_dgst !== null ? response.data.total_dgst : '0.00');
