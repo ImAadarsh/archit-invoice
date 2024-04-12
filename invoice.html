@@ -23,8 +23,18 @@
             <div class="tm_invoice_left">
               <div class="tm_logo"><img src="assets/img/archit.svg" alt="Logo"></div>
             </div>
-            <div class="tm_invoice_right tm_text_right tm_mobile_hide">
-              <div class="tm_f50 tm_text_uppercase tm_white_color">Invoice</div>
+            <div class="tm_invoice_right tm_text_right ">
+              <!-- <div class="tm_f50 tm_text_uppercase tm_white_color">Invoice</div> -->
+              <p style="margin-top: 12px;" class="tm_white_color">
+                <!-- Archit Art Gallery<br> -->
+                Shop No: 28 
+                Kirti Nagar Furniture Block, <br>
+Kirti Nagar, New  Delhi – 110015 <br>
+<b>Ph. No: +91- 9868 200 002<br>
+  +91- 9289 388 374</b>
+
+
+              </p>
             </div>
             <div class="tm_shape_bg tm_accent_bg tm_mobile_hide"></div>
           </div>
@@ -38,7 +48,7 @@
           </div>
           <div class="tm_invoice_head tm_mb10">
             <div class="tm_invoice_left">
-              <p id="" class="tm_mb2"><b class="tm_primary_color">Ship To:</b></p>
+              <p id="" class="tm_mb2"><b class="tm_primary_color">Billed To:</b></p>
               <p id="invoice_to">
                 <!-- Lowell H. Dominguez <br>
                 84 Spilman Street, London <br>United Kingdom <br>
@@ -46,16 +56,11 @@
               </p>
             </div>
             <div class="tm_invoice_right tm_text_right">
-              <p class="tm_mb2"><b class="tm_primary_color">Pay To:</b></p>
-              <p>
-                Archit Art Gallery<br>
-                Shop No: 28 
-                Kirti Nagar Furniture Block, <br>
-Kirti Nagar, New  Delhi – 110015 <br>
-<b>Ph. No: +91- 9868 200 002<br>
-  +91- 9289 388 374</b>
-
-
+              <p class="tm_mb2"><b class="tm_primary_color">Ship To:</b></p>
+              <p id="billed_to">
+                <!-- Lowell H. Dominguez <br>
+                84 Spilman Street, London <br>United Kingdom <br>
+                lowell@gmail.com -->
               </p>
             </div>
           </div>
@@ -252,6 +257,15 @@ Kirti Nagar, New  Delhi – 110015 <br>
                               response.data.billing_address.pincode + '<br>' +
                               '<b>Mobile Number: </b>'+response.data.mobile_number + '<br>';
           $('#invoice_to').html(invoiceToHtml);
+
+          var billedToHTMl = response.data.name + '<br>' +
+                              response.data.shipping_address.address_1 + ', ' +
+                              response.data.shipping_address.address_2 + '<br>' +
+                              response.data.shipping_address.city + ', ' +
+                              response.data.shipping_address.state + ', ' +
+                              response.data.shipping_address.pincode + '<br>' +
+                              '<b>Mobile Number: </b>'+response.data.mobile_number + '<br>';
+          $('#billed_to').html(billedToHTMl);
           $('#item_details').html(itemDetailsHtml);
           $('#customer_name').text(response.data.name);
 
