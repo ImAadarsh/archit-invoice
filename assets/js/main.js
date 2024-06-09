@@ -8,15 +8,17 @@
   $('#tm_download_btn').on('click', function () {
     var downloadSection = $('#tm_download_section');
     var cWidth = downloadSection.width();
+    // console.log("wefkjrgjjjkjkdfjkdsbdskb");
+    // console.log(cWidth);
     var cHeight = downloadSection.height();
     var topLeftMargin = 0;
     var pdfWidth = cWidth + topLeftMargin * 2;
-   // Check if the device is mobile
-   var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-   // Set pdfHeight based on device type
-   var pdfHeight = isMobile ? pdfWidth * 1.5 + topLeftMargin * 2 : pdfWidth * 4.5 + topLeftMargin * 2;
-
+    if(cWidth<600){
+      var pdfHeight = pdfWidth * 4.5 + topLeftMargin * 2;
+    }else{
+      var pdfHeight = pdfWidth * 1.5 + topLeftMargin * 2;
+    }
+    
     var canvasImageWidth = cWidth;
     var canvasImageHeight = cHeight;
     var totalPDFPages = Math.ceil(cHeight / pdfHeight) - 1;
