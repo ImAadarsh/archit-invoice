@@ -11,7 +11,12 @@
     var cHeight = downloadSection.height();
     var topLeftMargin = 0;
     var pdfWidth = cWidth + topLeftMargin * 2;
-    var pdfHeight = pdfWidth * 1.5 + topLeftMargin * 2;
+   // Check if the device is mobile
+   var isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+   // Set pdfHeight based on device type
+   var pdfHeight = isMobile ? pdfWidth * 1.5 + topLeftMargin * 2 : pdfWidth * 4.5 + topLeftMargin * 2;
+
     var canvasImageWidth = cWidth;
     var canvasImageHeight = cHeight;
     var totalPDFPages = Math.ceil(cHeight / pdfHeight) - 1;
