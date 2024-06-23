@@ -37,7 +37,7 @@
             <!-- <div class="tm_shape_bg tm_accent_bg tm_mobile_hide"></div> -->
           </div>
           <div class="tm_invoice_info tm_mb25">
-            <div class="tm_card_note tm_mobile_hide"><b i class="tm_primary_color">Payment Method: </b> <span id="payment_method"></span> <br>  <b class="tm_primary_color">Date: </b><span id="invoice_date"></span> </div>
+            <div class="tm_card_note "><b i class="tm_primary_color">Payment Method: </b> <span id="payment_method"></span> <br>  <b class="tm_primary_color">Date: </b><span id="invoice_date"></span> </div>
             <div class="tm_invoice_info_list tm_white_color">
               <p class="tm_invoice_number tm_m0" id="invoice_number"></p>
               <p class="tm_invoice_date tm_m0">GSTIN: <b>07AADPA2039E1ZF</b></p>
@@ -357,8 +357,6 @@ $('#igst').text(response.data.total_igst !== null ? response.data.total_igst : '
 // Populate Amount Chargeable
 $('#amount_chargeable').text(response.data.total_amount !== null ? (Math.ceil(response.data.total_amount)).toFixed(2) : '0.00');
 $('#amount_chargeable_words').text(amountToWords(response.data.total_amount !== null ? response.data.total_amount : 0));
-
-
         },
         error: function(xhr, status, error) {
           console.error('Error fetching data from API:', error);
