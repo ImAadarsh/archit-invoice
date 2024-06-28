@@ -186,51 +186,41 @@
   <script src="assets/js/main.js"></script>
   <script>
     function amountToWords(amount) {
-      amount = Math.ceil(amount).toFixed(2);
-      const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine'];
-    const teens = ['Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-    const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-    const unitsTenths = ['Tenths', 'Hundredths'];
-
-    const convert = (n) => {
-        if (n < 10) return units[n];
-        if (n < 20) return teens[n - 10];
-        return tens[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + units[n % 10] : '');
-    };
-
-    const handleDecimal = (n) => {
-        if (n === 0) return '';
-        const str = String(n).split('.')[1];
-        if (!str) return '';
-        const firstDigit = Number(str[0]);
-        const secondDigit = Number(str[1]);
-        let result = '';
-        if (firstDigit !== 0) result += ' ' + units[firstDigit] + ' ' + unitsTenths[0];
-        if (secondDigit !== 0) result += ' ' + units[secondDigit] + ' ' + unitsTenths[1];
-        return result;
-    };
-
-    if (amount === 0) return 'Zero';
-    if (amount < 10) return units[amount] + handleDecimal(amount);
-    if (amount < 100) return convert(amount) + handleDecimal(amount);
-
-    const thousands = Math.floor(amount / 1000);
-    const hundreds = Math.floor((amount % 1000) / 100);
-    const remainder = amount % 100;
-    const remainderStr = remainder !== 0 ? ' ' + convert(remainder) : '';
-
-    let result = '';
-    if (thousands > 0) {
-        result += convert(thousands) + ' Thousand';
-    }
-    if (hundreds > 0) {
-        result += ' ' + convert(hundreds) + ' Hundred';
-    }
-    result += remainderStr + handleDecimal(amount - Math.floor(amount));
-    result = result.trim() + ' Only/-';
-
-    return result;
-}
+      const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+      const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+  
+      function convertLessThanOneThousand(n) {
+          if (n < 20) return units[n];
+          const digit = n % 10;
+          if (n < 100) return tens[Math.floor(n / 10)] + (digit ? " " + units[digit] : "");
+          const digit2 = n % 100;
+          return units[Math.floor(n / 100)] + " Hundred" + (digit2 ? " and " + convertLessThanOneThousand(digit2) : "");
+      }
+  
+      function convert(n) {
+          if (n < 1000) return convertLessThanOneThousand(n);
+          const g = Math.floor(n / 1000000000);
+          const m = Math.floor((n % 1000000000) / 1000000);
+          const t = Math.floor((n % 1000000) / 1000);
+          const h = n % 1000;
+          return (g ? convertLessThanOneThousand(g) + " Billion " : "") +
+                 (m ? convertLessThanOneThousand(m) + " Million " : "") +
+                 (t ? convertLessThanOneThousand(t) + " Thousand " : "") +
+                 (h ? convertLessThanOneThousand(h) : "");
+      }
+  
+      const parts = amount.toString().split('.');
+      const wholePart = parseInt(parts[0]);
+      const paisaPart = parts.length > 1 ? parseInt(parts[1].padEnd(2, '0')) : 0;
+  
+      let result = convert(wholePart).trim();
+      
+      if (paisaPart > 0) {
+          result += " and " + convertLessThanOneThousand(paisaPart) + " Paisa";
+      }
+  
+      return result + " Only/-";
+  }
     // Fetch data from API and populate HTML
     $(document).ready(function() {
       // Extract invoice ID from page URL
@@ -305,7 +295,7 @@
             invoiceToHtml += '<b>Mobile Number: </b>' + response.data.mobile_number + '<br>';
           }
           
-          $('#invoice_to').html(invoiceToHtml);
+
           
 
           var billedToHtml = '';
@@ -339,7 +329,41 @@
             billedToHtml += '<b>Mobile Number: </b>' + response.data.mobile_number + '<br>';
           }
           
-          $('#billed_to').html(billedToHtml);
+      // Function to format address without null values
+function formatAddress(addressData, name, mobileNumber) {
+  let formattedAddress = '';
+
+  if (name) {
+      formattedAddress += name + '<br>';
+  }
+
+  const addressParts = [
+      addressData.address_1,
+      addressData.address_2,
+      addressData.city,
+      addressData.state,
+      addressData.pincode
+  ].filter(part => part && part !== 'null' && part.trim() !== '');
+
+  formattedAddress += addressParts.join(', ') + '<br>';
+
+  if (mobileNumber) {
+      formattedAddress += '<b>Mobile Number: </b>' + mobileNumber;
+  }
+
+  return formattedAddress;
+}
+
+// Populate Invoice To (Billing Address)
+var billingAddress = formatAddress(response.data.billing_address, response.data.name, response.data.mobile_number);
+$('#invoice_to').html(billingAddress);
+
+// Populate Billed To (Shipping Address)
+var shippingAddress = formatAddress(response.data.shipping_address, response.data.name, response.data.mobile_number);
+$('#billed_to').html(shippingAddress);
+
+          var shippingAddress = formatAddress(response.data.shipping_address, response.data.name, response.data.mobile_number);
+$('#billed_to').html(shippingAddress);
           
           $('#item_details').html(itemDetailsHtml);
           $('#customer_name').text(response.data.name);
@@ -365,8 +389,9 @@ $('#cgst').text(response.data.total_cgst !== null ? response.data.total_cgst : '
 $('#igst').text(response.data.total_igst !== null ? response.data.total_igst : '0.00');
 
 // Populate Amount Chargeable
-$('#amount_chargeable').text(response.data.total_amount !== null ? (Math.ceil(response.data.total_amount)).toFixed(2) : '0.00');
-$('#amount_chargeable_words').text(amountToWords(response.data.total_amount !== null ? response.data.total_amount : 0));
+// Populate Amount Chargeable
+$('#amount_chargeable').text(response.data.total_amount !== null ? response.data.total_amount.toFixed(2) : '0.00');
+$('#amount_chargeable_words').text(amountToWords(response.data.total_amount !== null ? parseFloat(response.data.total_amount) : 0));
         },
         error: function(xhr, status, error) {
           console.error('Error fetching data from API:', error);
