@@ -119,20 +119,31 @@
       }
 
     $(document).ready(function() {
-      // Extract query parameters from URL
       var urlParams = new URLSearchParams(window.location.search);
-      var businessId = urlParams.get('business_id') || '';
-      var locationId = urlParams.get('location_id') || '';
-      var maxAmount = urlParams.get('max_amount') || '';
-      var minAmount = urlParams.get('min_amount') || '';
-      var type = urlParams.get('type') || '';
-      var paymentMode = urlParams.get('payment_mode') || '';
-      var startDate = urlParams.get('start_date') || '';
-      var endDate = urlParams.get('end_date') || '';
-
+      var params = {
+        'business_id': urlParams.get('business_id'),
+        'location_id': urlParams.get('location_id'),
+        'max_amount': urlParams.get('max_amount'),
+        'min_amount': urlParams.get('min_amount'),
+        'type': urlParams.get('type'),
+        'payment_mode': urlParams.get('payment_mode'),
+        'start_date': urlParams.get('start_date'),
+        'end_date': urlParams.get('end_date')
+      };
+      
       // Construct API URL
-      var apiUrl = `http://127.0.0.1:8000/api/getBulkInvoices?business_id=${businessId}&location_id=${locationId}&max_amount=${maxAmount}&min_amount=${minAmount}&type=${type}&payment_mode=${paymentMode}&start_date=${startDate}&end_date=${endDate}`;
-
+      var apiUrl = 'https://architartgallery.in/public/api/getBulkInvoices';
+      var queryParams = [];
+      
+      for (var key in params) {
+        if (params[key] !== null && params[key] !== '') {
+          queryParams.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+        }
+      }
+      
+      if (queryParams.length > 0) {
+        apiUrl += '?' + queryParams.join('&');
+      }
       // Fetch bulk invoice data
       $.ajax({
         url: apiUrl,
