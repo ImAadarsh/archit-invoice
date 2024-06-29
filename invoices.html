@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html class="no-js" lang="en">
+
+<head>
+  <!-- Meta Tags -->
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <link rel="icon" type="image/jpg" href="archit-fav.jpg">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="author" content="Endeavour Digital">
+  <!-- Site Title -->
+  <title>Archit Art Gallery Bulk Invoices</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <style>
+    @media (max-width: 600px) {
+      .tm_card_note {
+        color: white !important;
+      }
+      #invoice_head {
+        color: white !important;
+      }
+    }
+    .page-break {
+      page-break-after: always;
+    }
+    .tm_invoice_btns {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+      }
+    
+      @media print {
+        .tm_hide_print {
+          display: none !important;
+        }
+      }
+  </style>
+</head>
+
+<body>
+  <div class="tm_container" id="invoices_container">
+    <!-- Invoices will be dynamically inserted here -->
+  </div>
+  <div class="tm_invoice_btns tm_hide_print">
+
+    <button id="tm_print_bulk_btn" class="tm_invoice_btn tm_color1">
+      <span class="tm_btn_icon">
+        <!-- Add your SVG code here -->
+      </span>
+      <span class="tm_btn_text">Print Bulk Invoices</span>
+    </button>
+  </div>
+  <script src="assets/js/jquery.min.js"></script>
+  <script src="assets/js/jspdf.min.js"></script>
+  <script src="assets/js/html2canvas.min.js"></script>
+  <script>
+    function amountToWords(amount) {
+        const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+    
+        function convertLessThanOneThousand(n) {
+            if (n < 20) return units[n];
+            const digit = n % 10;
+            if (n < 100) return tens[Math.floor(n / 10)] + (digit ? " " + units[digit] : "");
+            const digit2 = n % 100;
+            return units[Math.floor(n / 100)] + " Hundred" + (digit2 ? " and " + convertLessThanOneThousand(digit2) : "");
+        }
+    
+        function convert(n) {
+            if (n < 1000) return convertLessThanOneThousand(n);
+            const g = Math.floor(n / 1000000000);
+            const m = Math.floor((n % 1000000000) / 1000000);
+            const t = Math.floor((n % 1000000) / 1000);
+            const h = n % 1000;
+            return (g ? convertLessThanOneThousand(g) + " Billion " : "") +
+                   (m ? convertLessThanOneThousand(m) + " Million " : "") +
+                   (t ? convertLessThanOneThousand(t) + " Thousand " : "") +
+                   (h ? convertLessThanOneThousand(h) : "");
+        }
+    
+        const parts = amount.toString().split('.');
+        const wholePart = parseInt(parts[0]);
+        const paisaPart = parts.length > 1 ? parseInt(parts[1].padEnd(2, '0')) : 0;
+    
+        let result = convert(wholePart).trim();
+        
+        if (paisaPart > 0) {
+            result += " and " + convertLessThanOneThousand(paisaPart) + " Paisa";
+        }
+    
+        return result + " Only/-";
+      }
+  
+      function formatAddress(addressData, name, mobileNumber) {
+        let formattedAddress = '';
+  
+        if (name) {
+            formattedAddress += name + '<br>';
+        }
+  
+        if (addressData) {
+          const addressParts = [
+              addressData.address_1,
+              addressData.address_2,
+              addressData.city,
+              addressData.state,
+              addressData.pincode
+          ].filter(part => part && part !== 'null' && part.trim() !== '');
+  
+          formattedAddress += addressParts.join(', ') + '<br>';
+        }
+  
+        if (mobileNumber) {
+            formattedAddress += '<b>Mobile Number: </b>' + mobileNumber;
+        }
+  
+        return formattedAddress;
+      }
+
+    $(document).ready(function() {
+      // Extract query parameters from URL
+      var urlParams = new URLSearchParams(window.location.search);
+      var businessId = urlParams.get('business_id') || '';
+      var locationId = urlParams.get('location_id') || '';
+      var maxAmount = urlParams.get('max_amount') || '';
+      var minAmount = urlParams.get('min_amount') || '';
+      var type = urlParams.get('type') || '';
+      var paymentMode = urlParams.get('payment_mode') || '';
+      var startDate = urlParams.get('start_date') || '';
+      var endDate = urlParams.get('end_date') || '';
+
+      // Construct API URL
+      var apiUrl = `http://127.0.0.1:8000/api/getBulkInvoices?business_id=${businessId}&location_id=${locationId}&max_amount=${maxAmount}&min_amount=${minAmount}&type=${type}&payment_mode=${paymentMode}&start_date=${startDate}&end_date=${endDate}`;
+
+      // Fetch bulk invoice data
+      $.ajax({
+        url: apiUrl,
+        type: 'GET',
+        success: function(response) {
+          if (response.status && response.data) {
+            generateInvoices(response.data);
+          } else {
+            console.error('Invalid response structure:', response);
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error fetching data from API:', error);
+        }
+      });
+
+      function generateInvoices(invoices) {
+        var invoicesHtml = '';
+        invoices.forEach(function(invoice, index) {
+          invoicesHtml += generateInvoiceHtml(invoice, index);
+          if (index < invoices.length - 1) {
+            invoicesHtml += '<div class="page-break"></div>';
+          }
+        });
+        $('#invoices_container').html(invoicesHtml);
+      }
+
+      function generateInvoiceHtml(invoice, index) {
+        var itemsHtml = generateItemsHtml(invoice.items);
+        var addressInfo = formatAddress(invoice.billing_address, invoice.name, invoice.mobile_number);
+
+        return `
+          <div class="tm_invoice tm_style1 tm_type1" id="tm_download_section_${index}">
+            <div class="tm_invoice_in">
+              <div class="tm_invoice_head tm_top_head tm_mb15 tm_align_center">
+                <div class="tm_invoice_left">
+                  <div class="tm_logo"><img src="assets/img/archit.svg" alt="Logo"></div>
+                </div>
+                <div class="tm_invoice_right tm_text_right">
+                  <p style="margin-top: 12px;" class="tm_black_color">
+                    Shop No: 28 
+                    Kirti Nagar Furniture Block, <br>
+                    Kirti Nagar, New  Delhi – 110015 <br>
+                    <b>Ph. No: +91- 9868 200 002<br>
+                      +91- 9289 388 374</b> 
+                      <br>GSTIN: <b>07AADPA2039E1ZF</b>
+                  </p>
+                </div>
+              </div>
+              <div class="tm_invoice_info tm_mb25">
+                <div class="tm_card_note"><b class="tm_primary_color" id="invoice_head">Payment Method: </b> ${invoice.payment_mode} <br>  <b class="tm_primary_color" id="invoice_head">Date: </b>${new Date(invoice.invoice_date).toLocaleDateString()} </div>
+                <div class="tm_invoice_info_list tm_white_color">
+                  <p class="tm_invoice_number tm_m0">Invoice No: #${invoice.serial_no}</p>
+                  <p class="tm_invoice_date tm_m0">GSTIN: ${invoice.doc_no || 'Not Available'}</p>
+                </div>
+                <div class="tm_invoice_seperator tm_accent_bg"></div>
+              </div>
+              <div class="tm_invoice_head tm_mb10">
+                <div class="tm_invoice_left">
+                  <p class="tm_mb2"><b class="tm_primary_color">Ship To:</b></p>
+                  <p>${addressInfo}</p>
+                </div>
+                <div class="tm_invoice_right tm_text_right">
+                  <p class="tm_mb2"><b class="tm_primary_color">Billed To:</b></p>
+                  <p>${addressInfo}</p>
+                </div>
+              </div>
+              <div class="tm_table tm_style1">
+                <div class="">
+                  <div class="tm_table_responsive">
+                    <table>
+                      <thead>
+                        <tr class="tm_accent_bg">
+                          <th class="tm_width_1 tm_semi_bold tm_white_color">Sno.</th>
+                          <th class="tm_width_4 tm_semi_bold tm_white_color">Item Name</th>
+                          <th class="tm_width_2 tm_semi_bold tm_white_color">HSN</th>
+                          <th class="tm_width_1 tm_semi_bold tm_white_color">Quantity</th>
+                          <th class="tm_width_2 tm_semi_bold tm_white_color">Rate</th>
+                          <th class="tm_width_3 tm_semi_bold tm_white_color tm_text_right">Total Value</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        ${itemsHtml}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="tm_invoice_footer tm_border_top tm_mb15 tm_m0_md">
+                  <div class="tm_left_footer">
+                    <p class="tm_mb2"><b class="tm_primary_color">Bank Details: </b></p>
+                    <p class="tm_m0">A/C Name: ARCHIT ART GALLERY <br>INDIAN OVERSEAS BANK GOLE MARKET <br>NEW DELHI 110001<br> <b>A/C No:</b> 084002000001156 <br> IFSC Code: IOBA0000840 </p>
+                    <br>
+                    <table class="tm_mb15">
+                      <tbody>
+                        <tr class="tm_accent_bg">
+                          <td class="tm_width_4 tm_border_top_0 tm_white_color"><b>Amount in Words:</b><br> ${amountToWords(invoice.total_amount)}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                  <div class="tm_right_footer">
+                    <table class="tm_mb15">
+                      <tbody>
+                        <tr class="tm_gray_bg">
+                          <td class="tm_width_3 tm_primary_color">Total Value of Goods:</td>
+                          <td class="tm_width_3 tm_primary_color tm_text_right">${invoice.total_amount - invoice.total_dgst - invoice.total_cgst - invoice.total_igst}</td>
+                        </tr>
+                        <tr class="tm_gray_bg">
+                          <td class="tm_width_5 tm_primary_color">Delhi GST <span class="tm_ternary_color"> @ 9 %</span></td>
+                          <td class="tm_width_5 tm_primary_color tm_text_right">${invoice.total_dgst}</td>
+                        </tr>
+                        <tr class="tm_gray_bg">
+                          <td class="tm_width_5 tm_primary_color">CGST <span class="tm_ternary_color"> @ 9 %</span></td>
+                          <td class="tm_width_5 tm_primary_color tm_text_right">${invoice.total_cgst}</td>
+                        </tr>
+                        <tr class="tm_gray_bg">
+                          <td class="tm_width_5 tm_primary_color">IGST <span class="tm_ternary_color"> @ 18 %</span></td>
+                          <td class="tm_width_5 tm_primary_color tm_text_right">${invoice.total_igst}</td>
+                        </tr>
+                        <tr class="tm_accent_bg">
+                          <td class="tm_width_6 tm_border_top_0 tm_bold tm_white_color">Amount Chargeable</td>
+                          <td class="tm_width_5 tm_border_top_0 tm_bold tm_white_color tm_text_right">${invoice.total_amount}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+              <div class="tm_note tm_text_center tm_font_style_normal">
+                <hr class="tm_mb5">
+                <p class="tm_m0 tm_primary_color">© Archit Art Gallery - 2024  </p>
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      function generateItemsHtml(items) {
+        return items.map((item, index) => `
+          <tr>
+            <td class="tm_width_1">${index + 1}</td>
+            <td class="tm_width_4">${item.product ? item.product.name : 'Unknown Product'}</td>
+            <td class="tm_width_2">${item.product ? item.product.hsn_code : 'N/A'}</td>
+            <td class="tm_width_1">${item.quantity}</td>
+            <td class="tm_width_2">${item.price_of_one.toFixed(2)}</td>
+            <td class="tm_width_3 tm_text_right">${(item.quantity * item.price_of_one).toFixed(2)}</td>
+          </tr>
+        `).join('');
+      }
+    
+      $('#tm_print_bulk_btn').on('click', function() {
+        window.print();
+      });
+    });
+  </script>
+</body>
+</html>

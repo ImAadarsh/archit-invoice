@@ -34,14 +34,14 @@
 
       // Fetch all invoices
       $.ajax({
-        url: 'http://127.0.0.1:8000/api/getAllInvoices',
+        url: 'https://architartgallery.in/public/api/getAllInvoices',
         type: 'GET',
         success: function(allInvoicesResponse) {
           // Iterate through all invoices
           allInvoicesResponse.data.forEach(function(invoiceData) {
             // Fetch detailed invoice for each invoice
             $.ajax({
-              url: 'https://api.architartgallery.in/public/api/getDetailedInvoice/' + invoiceData.id,
+              url: 'https://architartgallery.in/public/api/getDetailedInvoice/' + invoiceData.id,
               type: 'GET',
               success: function(detailedInvoiceResponse) {
                 // Populate HTML elements with detailed invoice data

@@ -38,7 +38,8 @@
                 Kirti Nagar Furniture Block, <br>
                 Kirti Nagar, New  Delhi – 110015 <br>
                 <b>Ph. No: +91- 9868 200 002<br>
-                  +91- 9289 388 374</b>
+                  +91- 9289 388 374</b> 
+                  <br>GSTIN: <b>07AADPA2039E1ZF</b>
               </p>
             </div>
           </div>
@@ -46,19 +47,20 @@
             <div class="tm_card_note "><b i class="tm_primary_color" id="invoice_head">Payment Method: </b> <span id="payment_method"></span> <br>  <b class="tm_primary_color" id="invoice_head">Date: </b><span id="invoice_date"></span> </div>
             <div class="tm_invoice_info_list tm_white_color">
               <p class="tm_invoice_number tm_m0" id="invoice_number"></p>
-              <p class="tm_invoice_date tm_m0">GSTIN: <b>07AADPA2039E1ZF</b></p>
+              <p class="tm_invoice_date tm_m0" id="customer_gst"></p>
             </div>
             <div class="tm_invoice_seperator tm_accent_bg"></div>
           </div>
           <div class="tm_invoice_head tm_mb10">
             <div class="tm_invoice_left">
-              <p id="" class="tm_mb2"><b class="tm_primary_color">Billed To:</b></p>
-              <p id="invoice_to">
+             
+                <p class="tm_mb2"><b class="tm_primary_color">Ship To:</b></p>
+              <p id="billed_to">
               </p>
             </div>
             <div class="tm_invoice_right tm_text_right">
-              <p class="tm_mb2"><b class="tm_primary_color">Ship To:</b></p>
-              <p id="billed_to">
+              <p id="" class="tm_mb2"><b class="tm_primary_color">Billed To:</b></p>
+              <p id="invoice_to">
               </p>
             </div>
           </div>
@@ -241,6 +243,7 @@
 
             // Populate Invoice Number
             $('#invoice_number').text(data.serial_no ? 'Invoice No: #' + data.serial_no : 'Performa Invoice');
+            $('#customer_gst').text(data.doc_no ? 'GSTIN: #' + data.doc_no : 'GSTIN: Not Avaliable');
 
             // Populate Payment Method and Invoice Date
             $('#payment_method').text(data.payment_mode || 'Not specified');
