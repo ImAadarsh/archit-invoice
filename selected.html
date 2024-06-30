@@ -118,47 +118,45 @@
         return formattedAddress;
       }
 
-    $(document).ready(function() {
-      var urlParams = new URLSearchParams(window.location.search);
-      var params = {
-        'business_id': urlParams.get('business_id'),
-        'location_id': urlParams.get('location_id'),
-        'max_amount': urlParams.get('max_amount'),
-        'min_amount': urlParams.get('min_amount'),
-        'type': urlParams.get('type'),
-        'payment_mode': urlParams.get('payment_mode'),
-        'start_date': urlParams.get('start_date'),
-        'end_date': urlParams.get('end_date')
-      };
+      $(document).ready(function() {
+        // Parse IDs from the URL
+        var urlParams = new URLSearchParams(window.location.search);
+        var ids = urlParams.get('ids');
       
-      // Construct API URL
-      var apiUrl = 'https://architartgallery.in/public/api/getBulkInvoices';
-      var queryParams = [];
-      
-      for (var key in params) {
-        if (params[key] !== null && params[key] !== '') {
-          queryParams.push(encodeURIComponent(key) + '=' + encodeURIComponent(params[key]));
+        if (!ids) {
+          alert("No invoice IDs provided. Please select at least one invoice.");
+          return;
         }
-      }
       
-      if (queryParams.length > 0) {
-        apiUrl += '?' + queryParams.join('&');
-      }
-      // Fetch bulk invoice data
-      $.ajax({
-        url: apiUrl,
-        type: 'GET',
-        success: function(response) {
-          if (response.status && response.data) {
-            generateInvoices(response.data);
-          } else {
-            console.error('Invalid response structure:', response);
+        var idsArray = ids.split(',').map(id => id.trim()).filter(id => id !== '');
+      
+        if (idsArray.length === 0) {
+          alert("No valid invoice IDs provided. Please select at least one invoice.");
+          return;
+        }
+      
+        // Construct API URL
+        var apiUrl = 'https://architartgallery.in/public/api/getBulkInvoicesSelected';
+        
+        // Fetch bulk invoice data
+        $.ajax({
+          url: apiUrl,
+          type: 'POST', // Changed to POST to send data in the request body
+          data: JSON.stringify({ ids: idsArray }),
+          contentType: 'application/json',
+          success: function(response) {
+            if (response.status && response.data) {
+              generateInvoices(response.data);
+            } else {
+              console.error('Invalid response structure:', response);
+              alert("Error: Unable to retrieve invoice data. Please try again.");
+            }
+          },
+          error: function(xhr, status, error) {
+            console.error('Error fetching data from API:', error);
+            alert("Error: Unable to retrieve invoice data. Please try again.");
           }
-        },
-        error: function(xhr, status, error) {
-          console.error('Error fetching data from API:', error);
-        }
-      });
+        });
 
       function generateInvoices(invoices) {
         var invoicesHtml = '';
