@@ -32,14 +32,8 @@
             <div class="tm_invoice_left">
               <div class="tm_logo"><img src="assets/img/archit.svg" alt="Logo"></div>
             </div>
-            <div class="tm_invoice_right tm_text_right ">
-              <p style="margin-top: 12px;" class="tm_black_color">
-                Shop No: 28 
-                Kirti Nagar Furniture Block, <br>
-                Kirti Nagar, New  Delhi – 110015 <br>
-                <b>Ph. No: +91- 9868 200 002<br>
-                  +91- 9289 388 374</b> 
-                  <br>GSTIN: <b>07AADPA2039E1ZF</b>
+            <div class="tm_invoice_right tm_text_right business_location_data ">
+              <p style="margin-top: 15px; font-size: 12px;" class="tm_black_color">
               </p>
             </div>
           </div>
@@ -235,11 +229,32 @@
 
       // Fetch data from API
       $.ajax({
-        url: 'https://architartgallery.in/public/api/getDetailedInvoice/' + invoiceId,
+        url: 'https://architartgallery.in/public/api/getDetailedInvoiceWeb/' + invoiceId,
         type: 'GET',
         success: function(response) {
           if (response.status && response.data) {
             var data = response.data;
+
+            var businessInfo = '';
+            if (data.location_name) {
+              businessInfo += data.location_name + '<br>';
+            }
+            if (data.location_address) {
+              businessInfo += data.location_address + '<br>';
+            }
+            if (data.location_phone) {
+              businessInfo += '<b>Ph. No: ' + data.location_phone;
+              if (data.location_alternate_phone) {
+                businessInfo += ', ' + data.location_alternate_phone;
+              }
+              businessInfo += '</b><br>';
+            }
+            if (data.business_gst) {
+              businessInfo += 'GSTIN: <b>' + data.business_gst + '</b>';
+            }
+
+            // Update the business info in your HTML
+            $('.business_location_data p').html(businessInfo);
 
             // Populate Invoice Number
             $('#invoice_number').text(data.serial_no ? 'Invoice No: #' + data.serial_no : 'Performa Invoice');

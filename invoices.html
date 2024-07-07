@@ -135,7 +135,7 @@
       };
       
       // Construct API URL
-      var apiUrl = 'https://architartgallery.in/public/api/getBulkInvoices';
+      var apiUrl = 'https://architartgallery.in/public/api/getBulkInvoicesWeb';
       var queryParams = [];
       
       for (var key in params) {
@@ -187,12 +187,10 @@
                 </div>
                 <div class="tm_invoice_right tm_text_right">
                   <p style="margin-top: 12px;" class="tm_black_color">
-                    Shop No: 28 
-                    Kirti Nagar Furniture Block, <br>
-                    Kirti Nagar, New  Delhi – 110015 <br>
-                    <b>Ph. No: +91- 9868 200 002<br>
-                      +91- 9289 388 374</b> 
-                      <br>GSTIN: <b>07AADPA2039E1ZF</b>
+                    ${invoice.business_info.name} <br>
+                   ${invoice.business_info.address}<br>
+                    <b>Ph. No: ${invoice.business_info.address}<br>
+                      <br>GSTIN: <b>${invoice.business_info.gst}</b>
                   </p>
                 </div>
               </div>
