@@ -419,6 +419,7 @@ img {
     function mmToPx(mm) {
       return mm * 3.7795275591;
     }
+
     
     $("#tm_download_button").click(function () {
       // Clone the invoice content
@@ -428,12 +429,17 @@ img {
       content.find('script').remove();
       
       // Create a new div to hold the content
-      var $wrapper = $("<div>").append(content);
-      $wrapper.css({
-        position: 'absolute',
-        left: '-9999px',
-        width: '210mm'
-      }).appendTo('body');
+      var $wrapper = $("<div>")
+        .append(content)
+        .css({
+          position: 'absolute',
+          left: '-9999px',
+          width: '210mm'  // Set to A4 width
+        })
+        .appendTo('body');
+    
+      // Hide the download buttons for capturing
+      $wrapper.find(".tm_invoice_btns").hide();
     
       // Use html2canvas to capture the content
       html2canvas($wrapper[0], {
@@ -446,25 +452,18 @@ img {
         $wrapper.remove();
     
         // Create PDF
-        var pdf = new jsPDF('p', 'mm', 'a4');
         var imgData = canvas.toDataURL('image/png');
-        var imgWidth = 210; 
-        var pageHeight = 350;  
-        var imgHeight = canvas.height * imgWidth / canvas.width;
-        var heightLeft = imgHeight;
-        var position = 0;
+        var pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
+        });
     
-        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
-    
-        while (heightLeft >= 0) {
-          position = heightLeft - imgHeight;
-          pdf.addPage();
-          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-          heightLeft -= pageHeight;
-        }
-    
-        pdf.save('invoice.pdf');
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('Archit_Art_Gallery_Invoice.pdf');
+      }).catch(function(error) {
+        console.error('Error in PDF generation:', error);
+        alert('An error occurred while generating the PDF. Please try again.');
       });
     });
   </script>
