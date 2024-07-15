@@ -8,6 +8,8 @@
   <link rel="icon" type="image/jpg" href="archit-fav.jpg">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Endeavour Digital">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <!-- Site Title -->
   <title>Archit Art Gallery Invoice</title>
   <link rel="stylesheet" href="assets/css/style.css">
@@ -20,12 +22,111 @@
           color: white !important;
         }
     }
+    @media print {
+      body {
+        width: 210mm;
+        height: 297mm;
+      }
+    }
+    
+    #pdf-content {
+      width: 210mm;
+      height: 297mm;
+      padding: 10mm;
+      margin: 0 auto;
+      background: white;
+    }
+    @media (max-width: 768px) {
+  .tm_invoice_head {
+    flex-direction: column !important;
+  }
+
+  .tm_invoice_left,
+  .tm_invoice_right {
+    width: 100% !important;
+    text-align: left !important;
+  }
+
+  .tm_invoice_info {
+    flex-direction: column !important;
+  }
+
+  .tm_invoice_info_left,
+  .tm_invoice_info_right {
+    width: 100% !important;
+  }
+
+  .tm_invoice {
+    padding: 20px !important;
+  }
+
+  .tm_table_responsive {
+    overflow-x: auto !important;
+  }
+
+  .tm_table_responsive table {
+    min-width: 100% !important;
+  }
+
+  .tm_invoice_footer {
+    flex-direction: column !important;
+  }
+
+  .tm_invoice_footer .tm_left_footer,
+  .tm_invoice_footer .tm_right_footer {
+    width: 100% !important;
+    padding: 10px 0 !important;
+  }
+
+  .tm_col_4,
+  .tm_col_3,
+  .tm_col_2 {
+    grid-template-columns: repeat(1, 1fr) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .tm_f40 {
+    font-size: 30px !important;
+  }
+
+  .tm_f30 {
+    font-size: 24px !important;
+  }
+
+  .tm_f20 {
+    font-size: 18px !important;
+  }
+
+  .tm_f16 {
+    font-size: 14px !important;
+  }
+}
+
+/* Global changes */
+img {
+  max-width: 100% !important;
+  height: auto !important;
+}
+
+.tm_flex_wrap {
+  flex-wrap: wrap !important;
+}
+
+@media (max-width: 768px) {
+  .tm_flex_column_reverse_md {
+    flex-direction: column-reverse !important;
+  }
+}
   </style>
 </head>
 
 <body>
   <div class="tm_container">
     <div class="tm_invoice_wrap">
+      <div id="pdf-content" style="width: 210mm; height: 297mm; display: none;">
+        
+      </div>
       <div class="tm_invoice tm_style1 tm_type1" id="tm_download_section">
         <div class="tm_invoice_in">
           <div class="tm_invoice_head tm_top_head tm_mb15 tm_align_center">
@@ -144,12 +245,14 @@
           </span>
           <span class="tm_btn_text">Print</span>
         </a>
-        <button id="tm_download_btn" class="tm_invoice_btn tm_color2">
+     
+        <button id="tm_download_button" class="tm_invoice_btn tm_color2">
           <span class="tm_btn_icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M320 336h76c55 0 100-21.21 100-75.6s-53-73.47-96-75.6C391.11 99.74 329 48 256 48c-69 0-113.44 45.79-128 91.2-60 5.7-112 35.88-112 98.4S70 336 136 336h56M192 400.1l64 63.9 64-63.9M256 224v224.03" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>
           </span>
           <span class="tm_btn_text">Download</span>
         </button>
+   
       </div>
     </div>
   </div>
@@ -311,6 +414,57 @@
         error: function(xhr, status, error) {
           console.error('Error fetching data from API:', error);
         }
+      });
+    });
+    function mmToPx(mm) {
+      return mm * 3.7795275591;
+    }
+    
+    $("#tm_download_button").click(function () {
+      // Clone the invoice content
+      var content = $("#tm_download_section").clone();
+      
+      // Remove any elements that might cause issues (like scripts)
+      content.find('script').remove();
+      
+      // Create a new div to hold the content
+      var $wrapper = $("<div>").append(content);
+      $wrapper.css({
+        position: 'absolute',
+        left: '-9999px',
+        width: '210mm'
+      }).appendTo('body');
+    
+      // Use html2canvas to capture the content
+      html2canvas($wrapper[0], {
+        scale: 2,
+        logging: true,
+        useCORS: true,
+        allowTaint: true
+      }).then(function(canvas) {
+        // Remove the temporary wrapper
+        $wrapper.remove();
+    
+        // Create PDF
+        var pdf = new jsPDF('p', 'mm', 'a4');
+        var imgData = canvas.toDataURL('image/png');
+        var imgWidth = 210; 
+        var pageHeight = 350;  
+        var imgHeight = canvas.height * imgWidth / canvas.width;
+        var heightLeft = imgHeight;
+        var position = 0;
+    
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+    
+        while (heightLeft >= 0) {
+          position = heightLeft - imgHeight;
+          pdf.addPage();
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+        }
+    
+        pdf.save('invoice.pdf');
       });
     });
   </script>
