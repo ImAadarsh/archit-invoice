@@ -12,7 +12,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <!-- Site Title -->
   <title>Archit Art Gallery Invoice</title>
-  <link rel="stylesheet" href="assets/css/style.css">
+  <link rel="stylesheet" href="assets/css/style.css?v=1.0.1">
+  <script>
+    // Disable caching for forward and backward navigation
+    window.onpageshow = function(event) {
+        if (event.persisted) {
+            window.location.reload();
+        }
+    };
+    </script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
  
 </head>
 
@@ -154,7 +166,7 @@
   <script src="assets/js/jquery.min.js"></script>
   <script src="assets/js/jspdf.min.js"></script>
   <script src="assets/js/html2canvas.min.js"></script>
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/main.js?v=1.0.1"></script>
   <script>
     function amountToWords(amount) {
       const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
@@ -229,6 +241,8 @@
       $.ajax({
         url: 'https://architartgallery.in/public/api/getDetailedInvoiceWeb/' + invoiceId,
         type: 'GET',
+        cache: false,  // Disable caching
+        data: { _: new Date().getTime() }, 
         success: function(response) {
           if (response.status && response.data) {
             var data = response.data;
