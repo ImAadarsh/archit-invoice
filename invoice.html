@@ -12,7 +12,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <!-- Site Title -->
   <title>Archit Art Gallery Invoice</title>
-  <link rel="stylesheet" href="assets/css/style.css?v=1.0.1">
+  <link rel="stylesheet" href="assets/css/style.css">
   <script>
     // Disable caching for forward and backward navigation
     window.onpageshow = function(event) {
@@ -171,39 +171,71 @@
     function amountToWords(amount) {
       const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
       const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-  
+      
       function convertLessThanOneThousand(n) {
+          if (n === 0) return '';
           if (n < 20) return units[n];
           const digit = n % 10;
           if (n < 100) return tens[Math.floor(n / 10)] + (digit ? " " + units[digit] : "");
           const digit2 = n % 100;
           return units[Math.floor(n / 100)] + " Hundred" + (digit2 ? " and " + convertLessThanOneThousand(digit2) : "");
       }
-  
-      function convert(n) {
+      
+      function convertIndianSystem(n) {
+          if (n === 0) return "Zero";
+          
+          // Handle numbers less than 1000
           if (n < 1000) return convertLessThanOneThousand(n);
-          const g = Math.floor(n / 1000000000);
-          const m = Math.floor((n % 1000000000) / 1000000);
-          const t = Math.floor((n % 1000000) / 1000);
-          const h = n % 1000;
-          return (g ? convertLessThanOneThousand(g) + " Billion " : "") +
-                 (m ? convertLessThanOneThousand(m) + " Million " : "") +
-                 (t ? convertLessThanOneThousand(t) + " Thousand " : "") +
-                 (h ? convertLessThanOneThousand(h) : "");
+          
+          // Extract each denomination according to Indian numbering system
+          const crore = Math.floor(n / 10000000);
+          const lakh = Math.floor((n % 10000000) / 100000);
+          const thousand = Math.floor((n % 100000) / 1000);
+          const remaining = n % 1000;
+          
+          let result = "";
+          
+          if (crore > 0) {
+              result += convertLessThanOneThousand(crore) + " Crore ";
+          }
+          
+          if (lakh > 0) {
+              result += convertLessThanOneThousand(lakh) + " Lakh ";
+          }
+          
+          if (thousand > 0) {
+              result += convertLessThanOneThousand(thousand) + " Thousand ";
+          }
+          
+          if (remaining > 0) {
+              result += convertLessThanOneThousand(remaining);
+          }
+          
+          return result.trim();
       }
-  
+      
+      // Parse the amount
       const parts = amount.toString().split('.');
       const wholePart = parseInt(parts[0]);
-      const paisaPart = parts.length > 1 ? parseInt(parts[1].padEnd(2, '0')) : 0;
-  
-      let result = convert(wholePart).trim();
+      let paisaPart = 0;
       
+      // Handle paisa part correctly
+      if (parts.length > 1) {
+          // Ensure we only take first two digits for paisa
+          const paisaStr = parts[1].padEnd(2, '0').substring(0, 2);
+          paisaPart = parseInt(paisaStr);
+      }
+      
+      // Convert whole part using Indian numbering system
+      let result = convertIndianSystem(wholePart);
+      
+      // Add paisa part if exists
       if (paisaPart > 0) {
           result += " and " + convertLessThanOneThousand(paisaPart) + " Paisa";
       }
-  
+      
       return result + " Only/-";
-    }
+  }
 
     function formatAddress(addressData, name, mobileNumber) {
       let formattedAddress = '';

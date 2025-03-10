@@ -36,7 +36,10 @@ body {
 main {
   display: block;
 }
-
+#billed_to, #invoice_to{
+  line-height: 1.10em !important;
+  font-size: 10px !important;
+}
 /**
  * Correct the font size and margin on `h1` elements within `section` and
  * `article` contexts in Chrome, Firefox, and Safari.
