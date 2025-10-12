@@ -8,24 +8,32 @@
   <link rel="icon" type="image/jpg" href="invoicemate.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Endeavour Digital">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <!-- Site Title -->
   <title>Invoicemate</title>
   <link rel="stylesheet" href="assets/css/style.css">
-  <style>
-    @media (max-width: 600px) {
-        .tm_card_note {
-            color: white !important;
+  <script>
+    // Disable caching for forward and backward navigation
+    window.onpageshow = function(event) {
+        if (event.persisted) {
+            window.location.reload();
         }
-        #invoice_head{
-          color: white !important;
-        }
-    }
-  </style>
+    };
+    </script>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+ 
 </head>
 
 <body>
   <div class="tm_container">
     <div class="tm_invoice_wrap">
+      <div id="pdf-content" style="width: 210mm; height: 297mm; display: none;">
+        
+      </div>
       <div class="tm_invoice tm_style1 tm_type1" id="tm_download_section">
         <div class="tm_invoice_in">
           <div class="tm_invoice_head tm_top_head tm_mb15 tm_align_center">
@@ -81,7 +89,8 @@
             <div class="tm_invoice_footer tm_border_top tm_mb15 tm_m0_md">
               <div class="tm_left_footer">
                 <p class="tm_mb2"><b class="tm_primary_color">Bank Details: </b></p>
-                <p class="tm_m0">A/C Name: ARCHIT ART GALLERY <br>INDIAN OVERSEAS BANK GOLE MARKET <br>NEW DELHI 110001<br> <b>A/C No:</b> 084002000001156 <br> IFSC Code: IOBA0000840 </p>
+                <p class="tm_m0" id="bank_details">
+                </p>
                 <br>
                 <table class="tm_mb15">
                   <tbody>
@@ -125,7 +134,7 @@
           </div>
           <div class="tm_note tm_text_center tm_font_style_normal">
             <hr class="tm_mb5">
-            <p class="tm_m0 tm_primary_color">© Archit Art Gallery - 2024  </p>
+            <p class="tm_m0 tm_primary_color" id="copyright_text">© Archit Art Gallery - 2024</p>
           </div>
         </div>
       </div>
@@ -133,7 +142,7 @@
         <a href="#" id="whatsappLink" class="tm_invoice_btn tm_color1">
           <span class="tm_btn_icon">
             <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="100" height="100" viewBox="0 0 48 48">
-              <path fill="#fff" d="M4.868,43.303l2.694-9.835C5.9,30.59,5.026,27.324,5.027,23.979C5.032,13.514,13.548,5,24.014,5c5.079,0.002,9.845,1.979,13.43,5.566c3.584,3.588,5.558,8.356,5.556,13.428c-0.004,10.465-8.522,18.98-18.986,18.98c-0.001,0,0,0,0,0h-0.008c-3.177-0.001-6.3-0.798-9.073-2.311L4.868,43.303z"></path><path fill="#fff" d="M4.868,43.803c-0.132,0-0.26-0.052-0.355-0.148c-0.125-0.127-0.174-0.312-0.127-0.483l2.639-9.636c-1.636-2.906-2.499-6.206-2.497-9.556C4.532,13.238,13.273,4.5,24.014,4.5c5.21,0.002,10.105,2.031,13.784,5.713c3.679,3.683,5.704,8.577,5.702,13.781c-0.004,10.741-8.746,19.48-19.486,19.48c-3.189-0.001-6.344-0.788-9.144-2.277l-9.875,2.589C4.953,43.798,4.911,43.803,4.868,43.803z"></path><path fill="#cfd8dc" d="M24.014,5c5.079,0.002,9.845,1.979,13.43,5.566c3.584,3.588,5.558,8.356,5.556,13.428c-0.004,10.465-8.522,18.98-18.986,18.98h-0.008c-3.177-0.001-6.3-0.798-9.073-2.311L4.868,43.303l2.694-9.835C5.9,30.59,5.026,27.324,5.027,23.979C5.032,13.514,13.548,5,24.014,5 M24.014,42.974C24.014,42.974,24.014,42.974,24.014,42.974C24.014,42.974,24.014,42.974,24.014,42.974 M24.014,42.974C24.014,42.974,24.014,42.974,24.014,42.974C24.014,42.974,24.014,42.974,24.014,42.974 M24.014,4C24.014,4,24.014,4,24.014,4C12.998,4,4.032,12.962,4.027,23.979c-0.001,3.367,0.849,6.685,2.461,9.622l-2.585,9.439c-0.094,0.345,0.002,0.713,0.254,0.967c0.19,0.192,0.447,0.297,0.711,0.297c0.085,0,0.17-0.011,0.254-0.033l9.687-2.54c2.828,1.468,5.998,2.243,9.197,2.244c11.024,0,19.99-8.963,19.995-19.98c0.002-5.339-2.075-10.359-5.848-14.135C34.378,6.083,29.357,4.002,24.014,4L24.014,4z"></path><path fill="#40c351" d="M35.176,12.832c-2.98-2.982-6.941-4.625-11.157-4.626c-8.704,0-15.783,7.076-15.787,15.774c-0.001,2.981,0.833,5.883,2.413,8.396l0.376,0.597l-1.595,5.821l5.973-1.566l0.577,0.342c2.422,1.438,5.2,2.198,8.032,2.199h0.006c8.698,0,15.777-7.077,15.78-15.776C39.795,19.778,38.156,15.814,35.176,12.832z"></path><path fill="#fff" fill-rule="evenodd" d="M19.268,16.045c-0.355-0.79-0.729-0.806-1.068-0.82c-0.277-0.012-0.593-0.011-0.909-0.011c-0.316,0-0.83,0.119-1.265,0.594c-0.435,0.475-1.661,1.622-1.661,3.956c0,2.334,1.7,4.59,1.937,4.906c0.237,0.316,3.282,5.259,8.104,7.161c4.007,1.58,4.823,1.266,5.693,1.187c0.87-0.079,2.807-1.147,3.202-2.255c0.395-1.108,0.395-2.057,0.277-2.255c-0.119-0.198-0.435-0.316-0.909-0.554s-2.807-1.385-3.242-1.543c-0.435-0.158-0.751-0.237-1.068,0.238c-0.316,0.474-1.225,1.543-1.502,1.859c-0.277,0.317-0.554,0.357-1.028,0.119c-0.474-0.238-2.002-0.738-3.815-2.354c-1.41-1.257-2.362-2.81-2.639-3.285c-0.277-0.474-0.03-0.731,0.208-0.968c0.213-0.213,0.474-0.554,0.712-0.831c0.237-0.277,0.316-0.475,0.474-0.791c0.158-0.317,0.079-0.594-0.04-0.831C20.612,19.329,19.69,16.983,19.268,16.045z" clip-rule="evenodd"></path>
+              <path fill="#fff" d="M4.868,43.303l2.694-9.835C5.9,30.59,5.026,27.324,5.027,23.979C5.032,13.514,13.548,5,24.014,5c5.079,0.002,9.845,1.979,13.43,5.566c3.584,3.588,5.558,8.356,5.556,13.428c-0.004,10.465-8.522,18.98-18.986,18.98c-0.001,0,0,0,0,0h-0.008c-3.177-0.001-6.3-0.798-9.073-2.311L4.868,43.303z"></path><path fill="#fff" d="M4.868,43.803c-0.132,0-0.26-0.052-0.355-0.148c-0.125-0.127-0.174-0.312-0.127-0.483l2.639-9.636c-1.636-2.906-2.499-6.206-2.497-9.556C4.532,13.238,13.273,4.5,24.014,4.5c5.21,0.002,10.105,2.031,13.784,5.713c3.679,3.683,5.704,8.577,5.702,13.781c-0.004,10.741-8.746,19.48-19.486,19.48c-3.189-0.001-6.344-0.788-9.144-2.277l-9.875,2.589C4.953,43.798,4.911,43.803,4.868,43.803z"></path><path fill="#cfd8dc" d="M24.014,5c5.079,0.002,9.845,1.979,13.43,5.566c3.584,3.588,5.558,8.356,5.556,13.428c-0.004,10.465-8.522,18.98-18.986,18.98h-0.008c-3.177-0.001-6.3-0.798-9.073-2.311L4.868,43.303l2.694-9.835C5.9,30.59,5.026,27.324,5.027,23.979C5.032,13.514,13.548,5,24.014,5 M24.014,42.974C24.014,42.974,24.014,42.974,24.014,42.974 M24.014,42.974C24.014,42.974,24.014,42.974,24.014,42.974 M24.014,4C24.014,4,24.014,4,24.014,4C12.998,4,4.032,12.962,4.027,23.979c-0.001,3.367,0.849,6.685,2.461,9.622l-2.585,9.439c-0.094,0.345,0.002,0.713,0.254,0.967c0.19,0.192,0.447,0.297,0.711,0.297c0.085,0,0.17-0.011,0.254-0.033l9.687-2.54c2.828,1.468,5.998,2.243,9.197,2.244c11.024,0,19.99-8.963,19.995-19.98c0.002-5.339-2.075-10.359-5.848-14.135C34.378,6.083,29.357,4.002,24.014,4L24.014,4z"></path><path fill="#40c351" d="M35.176,12.832c-2.98-2.982-6.941-4.625-11.157-4.626c-8.704,0-15.783,7.076-15.787,15.774c-0.001,2.981,0.833,5.883,2.413,8.396l0.376,0.597l-1.595,5.821l5.973-1.566l0.577,0.342c2.422,1.438,5.2,2.198,8.032,2.199h0.006c8.698,0,15.777-7.077,15.78-15.776C39.795,19.778,38.156,15.814,35.176,12.832z"></path><path fill="#fff" fill-rule="evenodd" d="M19.268,16.045c-0.355-0.79-0.729-0.806-1.068-0.82c-0.277-0.012-0.593-0.011-0.909-0.011c-0.316,0-0.83,0.119-1.265,0.594c-0.435,0.475-1.661,1.622-1.661,3.956c0,2.334,1.7,4.59,1.937,4.906c0.237,0.316,3.282,5.259,8.104,7.161c4.007,1.58,4.823,1.266,5.693,1.187c0.87-0.079,2.807-1.147,3.202-2.255c0.395-1.108,0.395-2.057,0.277-2.255c-0.119-0.198-0.435-0.316-0.909-0.554s-2.807-1.385-3.242-1.543c-0.435-0.158-0.751-0.237-1.068,0.238c-0.316,0.474-1.225,1.543-1.502,1.859c-0.277,0.317-0.554,0.357-1.028,0.119c-0.474-0.238-2.002-0.738-3.815-2.354c-1.41-1.257-2.362-2.81-2.639-3.285c-0.277-0.474-0.03-0.731,0.208-0.968c0.213-0.213,0.474-0.554,0.712-0.831c0.237-0.277,0.316-0.475,0.474-0.791c0.158-0.317,0.079-0.594-0.04-0.831C20.612,19.329,19.69,16.983,19.268,16.045z" clip-rule="evenodd"></path>
             </svg>
           </span>
           <span class="tm_btn_text">WhatsApp</span>
@@ -144,56 +153,90 @@
           </span>
           <span class="tm_btn_text">Print</span>
         </a>
-        <button id="tm_download_btn" class="tm_invoice_btn tm_color2">
+     
+        <button id="tm_download_button" class="tm_invoice_btn tm_color2">
           <span class="tm_btn_icon">
             <svg xmlns="http://www.w3.org/2000/svg" class="ionicon" viewBox="0 0 512 512"><path d="M320 336h76c55 0 100-21.21 100-75.6s-53-73.47-96-75.6C391.11 99.74 329 48 256 48c-69 0-113.44 45.79-128 91.2-60 5.7-112 35.88-112 98.4S70 336 136 336h56M192 400.1l64 63.9 64-63.9M256 224v224.03" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/></svg>
           </span>
           <span class="tm_btn_text">Download</span>
         </button>
+   
       </div>
     </div>
   </div>
   <script src="assets/js/jquery.min.js"></script>
   <script src="assets/js/jspdf.min.js"></script>
   <script src="assets/js/html2canvas.min.js"></script>
-  <script src="assets/js/main.js"></script>
+  <script src="assets/js/main.js?v=1.0.1"></script>
   <script>
     function amountToWords(amount) {
       const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
       const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-  
+      
       function convertLessThanOneThousand(n) {
+          if (n === 0) return '';
           if (n < 20) return units[n];
           const digit = n % 10;
           if (n < 100) return tens[Math.floor(n / 10)] + (digit ? " " + units[digit] : "");
           const digit2 = n % 100;
           return units[Math.floor(n / 100)] + " Hundred" + (digit2 ? " and " + convertLessThanOneThousand(digit2) : "");
       }
-  
-      function convert(n) {
+      
+      function convertIndianSystem(n) {
+          if (n === 0) return "Zero";
+          
+          // Handle numbers less than 1000
           if (n < 1000) return convertLessThanOneThousand(n);
-          const g = Math.floor(n / 1000000000);
-          const m = Math.floor((n % 1000000000) / 1000000);
-          const t = Math.floor((n % 1000000) / 1000);
-          const h = n % 1000;
-          return (g ? convertLessThanOneThousand(g) + " Billion " : "") +
-                 (m ? convertLessThanOneThousand(m) + " Million " : "") +
-                 (t ? convertLessThanOneThousand(t) + " Thousand " : "") +
-                 (h ? convertLessThanOneThousand(h) : "");
+          
+          // Extract each denomination according to Indian numbering system
+          const crore = Math.floor(n / 10000000);
+          const lakh = Math.floor((n % 10000000) / 100000);
+          const thousand = Math.floor((n % 100000) / 1000);
+          const remaining = n % 1000;
+          
+          let result = "";
+          
+          if (crore > 0) {
+              result += convertLessThanOneThousand(crore) + " Crore ";
+          }
+          
+          if (lakh > 0) {
+              result += convertLessThanOneThousand(lakh) + " Lakh ";
+          }
+          
+          if (thousand > 0) {
+              result += convertLessThanOneThousand(thousand) + " Thousand ";
+          }
+          
+          if (remaining > 0) {
+              result += convertLessThanOneThousand(remaining);
+          }
+          
+          return result.trim();
       }
-  
+      
+      // Parse the amount
       const parts = amount.toString().split('.');
       const wholePart = parseInt(parts[0]);
-      const paisaPart = parts.length > 1 ? parseInt(parts[1].padEnd(2, '0')) : 0;
-  
-      let result = convert(wholePart).trim();
+      let paisaPart = 0;
       
+      // Handle paisa part correctly
+      if (parts.length > 1) {
+          // Ensure we only take first two digits for paisa
+          const paisaStr = parts[1].padEnd(2, '0').substring(0, 2);
+          paisaPart = parseInt(paisaStr);
+      }
+      
+      // Convert whole part using Indian numbering system
+      let result = convertIndianSystem(wholePart);
+      
+      // Add paisa part if exists
       if (paisaPart > 0) {
           result += " and " + convertLessThanOneThousand(paisaPart) + " Paisa";
       }
-  
+      
       return result + " Only/-";
-    }
+  }
 
     function formatAddress(addressData, name, mobileNumber) {
       let formattedAddress = '';
@@ -231,9 +274,16 @@
       $.ajax({
         url: 'https://api.invoicemate.in/public/api/getDetailedInvoiceWeb/' + invoiceId,
         type: 'GET',
+        cache: false,  // Disable caching
+        data: { _: new Date().getTime() }, 
         success: function(response) {
           if (response.status && response.data) {
             var data = response.data;
+
+            // Update business logo
+            if (data.business_logo) {
+              $('#business_logo').attr('src', 'https://architartgallery.in/storage/app/' + data.business_logo);
+            }
 
             var businessInfo = '';
             
@@ -254,9 +304,19 @@
             // Update the business info in your HTML
             $('.business_location_data p').html(businessInfo);
 
+            // Update bank details
+            var bankDetailsHtml = '';
+            if (data.bank_details) {
+              bankDetailsHtml = 'A/C Name: ' + data.bank_details.account_name + '<br>' +
+                              data.bank_details.bank_name + ' ' + data.bank_details.address + '<br>' +
+                              '<b>A/C No:</b> ' + data.bank_details.account_no + '<br>' +
+                              'IFSC Code: ' + data.bank_details.ifsc_code;
+            }
+            $('#bank_details').html(bankDetailsHtml);
+
             // Populate Invoice Number
             $('#invoice_number').text(data.serial_no ? 'Invoice No: #' + data.serial_no : 'Performa Invoice');
-            $('#customer_gst').text(data.doc_no ? 'GSTIN: #' + data.doc_no : 'GSTIN: Not Avaliable');
+            $('#customer_gst').text(data.doc_no ? 'GSTIN: #' + data.doc_no : 'GSTIN: Not Available');
 
             // Populate Payment Method and Invoice Date
             $('#payment_method').text(data.payment_mode || 'Not specified');
@@ -300,6 +360,11 @@
             $('#amount_chargeable').text((data.total_amount || 0).toFixed(2));
             $('#amount_chargeable_words').text(amountToWords(data.total_amount || 0));
 
+            // Update copyright text
+            if (data.business_info && data.business_info.name) {
+              $('#copyright_text').text('© ' + data.business_info.name + ' - 2025');
+            }
+
             // Update WhatsApp link
             var whatsappMessage = `Hello, Your Invoice for Archit Art Gallery is here. Please visit the same using this link: https://invoice.invoicemate.in/invoice.html?invoiceid=${invoiceId}`;
             var whatsappLink = `https://wa.me/${data.mobile_number || ''}?text=${encodeURIComponent(whatsappMessage)}`;
@@ -311,6 +376,56 @@
         error: function(xhr, status, error) {
           console.error('Error fetching data from API:', error);
         }
+      });
+    });
+    function mmToPx(mm) {
+      return mm * 3.7795275591;
+    }
+
+    
+    $("#tm_download_button").click(function () {
+      // Clone the invoice content
+      var content = $("#tm_download_section").clone();
+      
+      // Remove any elements that might cause issues (like scripts)
+      content.find('script').remove();
+      
+      // Create a new div to hold the content
+      var $wrapper = $("<div>")
+        .append(content)
+        .css({
+          position: 'absolute',
+          left: '-9999px',
+          width: '210mm'  // Set to A4 width
+        })
+        .appendTo('body');
+    
+      // Hide the download buttons for capturing
+      $wrapper.find(".tm_invoice_btns").hide();
+    
+      // Use html2canvas to capture the content
+      html2canvas($wrapper[0], {
+        scale: 2,
+        logging: true,
+        useCORS: true,
+        allowTaint: true
+      }).then(function(canvas) {
+        // Remove the temporary wrapper
+        $wrapper.remove();
+    
+        // Create PDF
+        var imgData = canvas.toDataURL('image/png');
+        var pdf = new jsPDF({
+          orientation: 'portrait',
+          unit: 'px',
+          format: [canvas.width, canvas.height]
+        });
+    
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('Archit_Art_Gallery_Invoice.pdf');
+      }).catch(function(error) {
+        console.error('Error in PDF generation:', error);
+        alert('An error occurred while generating the PDF. Please try again.');
       });
     });
   </script>
