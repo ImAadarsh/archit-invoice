@@ -134,7 +134,7 @@
           </div>
           <div class="tm_note tm_text_center tm_font_style_normal">
             <hr class="tm_mb5">
-            <p class="tm_m0 tm_primary_color" id="copyright_text">© Invoicemate - 2025</p>
+            <p class="tm_m0 tm_primary_color" id="copyright_text">© Powered By Invoicemate - 2025</p>
           </div>
         </div>
       </div>
@@ -360,10 +360,7 @@
             $('#amount_chargeable').text((data.total_amount || 0).toFixed(2));
             $('#amount_chargeable_words').text(amountToWords(data.total_amount || 0));
 
-            // Update copyright text
-            if (data.business_info && data.business_info.name) {
-              $('#copyright_text').text('© ' + data.business_info.name + ' - 2025');
-            }
+            // Copyright text is kept permanent as "© Powered By Invoicemate - 2025"
 
             // Update WhatsApp link
             var whatsappMessage = `Hello, Your Invoice for Invoicemate is here. Please visit the same using this link: https://invoice.invoicemate.in/invoice.html?invoiceid=${invoiceId}`;
