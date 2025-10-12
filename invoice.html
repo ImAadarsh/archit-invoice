@@ -134,7 +134,7 @@
           </div>
           <div class="tm_note tm_text_center tm_font_style_normal">
             <hr class="tm_mb5">
-            <p class="tm_m0 tm_primary_color" id="copyright_text">© Archit Art Gallery - 2024</p>
+            <p class="tm_m0 tm_primary_color" id="copyright_text">© Invoicemate - 2025</p>
           </div>
         </div>
       </div>
@@ -282,7 +282,7 @@
 
             // Update business logo
             if (data.business_logo) {
-              $('#business_logo').attr('src', 'https://architartgallery.in/storage/app/' + data.business_logo);
+              $('#business_logo').attr('src', 'https://api.invoicemate.in/public/storage/app/' + data.business_logo);
             }
 
             var businessInfo = '';
@@ -366,7 +366,7 @@
             }
 
             // Update WhatsApp link
-            var whatsappMessage = `Hello, Your Invoice for Archit Art Gallery is here. Please visit the same using this link: https://invoice.invoicemate.in/invoice.html?invoiceid=${invoiceId}`;
+            var whatsappMessage = `Hello, Your Invoice for Invoicemate is here. Please visit the same using this link: https://invoice.invoicemate.in/invoice.html?invoiceid=${invoiceId}`;
             var whatsappLink = `https://wa.me/${data.mobile_number || ''}?text=${encodeURIComponent(whatsappMessage)}`;
             $('#whatsappLink').attr('href', whatsappLink);
           } else {
