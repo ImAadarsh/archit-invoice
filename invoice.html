@@ -5,11 +5,11 @@
   <!-- Meta Tags -->
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <link rel="icon" type="image/jpg" href="archit-fav.jpg">
+  <link rel="icon" type="image/jpg" href="invoicemate.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Endeavour Digital">
   <!-- Site Title -->
-  <title>Archit Art Gallery Invoice</title>
+  <title>Invoicemate</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <style>
     @media (max-width: 600px) {
@@ -30,7 +30,7 @@
         <div class="tm_invoice_in">
           <div class="tm_invoice_head tm_top_head tm_mb15 tm_align_center">
             <div class="tm_invoice_left">
-              <div class="tm_logo"><img src="assets/img/archit.svg" alt="Logo"></div>
+              <div class="tm_logo"><img src="assets/img/invoice_mate.svg" alt="Logo"></div>
             </div>
             <div class="tm_invoice_right tm_text_right business_location_data ">
               <p style="margin-top: 15px; font-size: 12px;" class="tm_black_color">
@@ -229,7 +229,7 @@
 
       // Fetch data from API
       $.ajax({
-        url: 'https://architartgallery.in/public/api/getDetailedInvoiceWeb/' + invoiceId,
+        url: 'https://api.invoicemate.in/public/api/getDetailedInvoiceWeb/' + invoiceId,
         type: 'GET',
         success: function(response) {
           if (response.status && response.data) {
@@ -301,7 +301,7 @@
             $('#amount_chargeable_words').text(amountToWords(data.total_amount || 0));
 
             // Update WhatsApp link
-            var whatsappMessage = `Hello, Your Invoice for Archit Art Gallery is here. Please visit the same using this link: https://invoice.architartgallery.in/invoice.html?invoiceid=${invoiceId}`;
+            var whatsappMessage = `Hello, Your Invoice for Archit Art Gallery is here. Please visit the same using this link: https://invoice.invoicemate.in/invoice.html?invoiceid=${invoiceId}`;
             var whatsappLink = `https://wa.me/${data.mobile_number || ''}?text=${encodeURIComponent(whatsappMessage)}`;
             $('#whatsappLink').attr('href', whatsappLink);
           } else {

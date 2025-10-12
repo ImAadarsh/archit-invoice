@@ -5,11 +5,11 @@
   <!-- Meta Tags -->
   <meta charset="utf-8">
   <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <link rel="icon" type="image/jpg" href="archit-fav.jpg">
+  <link rel="icon" type="image/jpg" href="invoicemate.png">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Endeavour Digital">
   <!-- Site Title -->
-  <title>Archit Art Gallery Invoice</title>
+  <title>Invoicemate</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <style>
     @media (max-width: 600px) {
@@ -115,7 +115,7 @@
     $(document).ready(function() {
       // Extract query parameters from URL
       var urlParams = new URLSearchParams(window.location.search);
-      var apiUrl = 'https://architartgallery.in/public/api/getBulkInvoices?' + urlParams.toString();
+      var apiUrl = 'https://api.invoicemate.in/public/api/getBulkInvoices?' + urlParams.toString();
     
       // Fetch data from API
       $.ajax({

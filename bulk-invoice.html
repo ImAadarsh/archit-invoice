@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Laralink">
   <!-- Site Title -->
-  <title>Archit Invoice | Bulk Download</title>
+  <title>Invoicemate | Bulk Download</title>
   <link rel="stylesheet" href="assets/css/style.css">
 </head>
 
@@ -34,14 +34,14 @@
 
       // Fetch all invoices
       $.ajax({
-        url: 'https://architartgallery.in/public/api/getAllInvoices',
+        url: 'https://api.invoicemate.in/public/api/getAllInvoices',
         type: 'GET',
         success: function(allInvoicesResponse) {
           // Iterate through all invoices
           allInvoicesResponse.data.forEach(function(invoiceData) {
             // Fetch detailed invoice for each invoice
             $.ajax({
-              url: 'https://architartgallery.in/public/api/getDetailedInvoice/' + invoiceData.id,
+              url: 'https://api.invoicemate.in/public/api/getDetailedInvoice/' + invoiceData.id,
               type: 'GET',
               success: function(detailedInvoiceResponse) {
                 // Populate HTML elements with detailed invoice data
@@ -65,7 +65,7 @@
           <div class="tm_invoice_head tm_top_head tm_mb15 tm_align_center">
             <!-- Invoice header content -->
             <div class="tm_invoice_left">
-              <div class="tm_logo"><img src="assets/img/archit.svg" alt="Logo"></div>
+              <div class="tm_logo"><img src="assets/img/invoice_mate.svg" alt="Logo"></div>
             </div>
             <div class="tm_invoice_right tm_text_right tm_mobile_hide">
               <div class="tm_f50 tm_text_uppercase tm_white_color">Invoice</div>
