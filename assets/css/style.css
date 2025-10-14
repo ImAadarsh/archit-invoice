@@ -40,6 +40,30 @@ main {
   line-height: 1.10em !important;
   font-size: 10px !important;
 }
+
+/* Compact styling for bank details and address sections */
+#bank_details {
+  font-size: 10px !important;
+  line-height: 1.2em !important;
+  margin: 0;
+  padding: 0;
+}
+
+.tm_invoice_footer .tm_left_footer {
+  padding: 8px 12px;
+}
+
+.tm_invoice_footer .tm_left_footer p {
+  margin: 0 0 3px 0;
+  font-size: 10px;
+  line-height: 1.2em;
+}
+
+.tm_invoice_footer .tm_left_footer p.tm_mb2 {
+  margin-bottom: 2px !important;
+  font-size: 10px !important;
+  font-weight: 500;
+}
 /**
  * Correct the font size and margin on `h1` elements within `section` and
  * `article` contexts in Chrome, Firefox, and Safari.
@@ -1423,7 +1447,7 @@ hr {
 }
 .tm_invoice.tm_style1.tm_type1 .tm_invoice_seperator {
   margin-right: 0;
-  border-radius: 0;
+  border-radius: 8px;
   -webkit-transform: skewX(35deg);
           transform: skewX(35deg);
   position: absolute;
@@ -1432,16 +1456,10 @@ hr {
   right: -60px;
   overflow: hidden;
   border: none;
+  background: none;
 }
 .tm_invoice.tm_style1.tm_type1 .tm_invoice_seperator img {
-  height: 100%;
-  width: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-  -webkit-transform: skewX(-35deg);
-          transform: skewX(-35deg);
-  -webkit-transform: skewX(-35deg) translateX(-10px);
-          transform: skewX(-35deg) translateX(-10px);
+  display: none;
 }
 .tm_invoice.tm_style1.tm_type1 .tm_invoice_info {
   position: relative;
@@ -2426,6 +2444,83 @@ hr {
     font-weight: 500 !important;
     color: #ffffff !important;
     -webkit-print-color-adjust: exact;
+  }
+  /* Fix spacing between invoice head and table in print */
+  .tm_invoice_head.tm_mb10 {
+    margin-bottom: 10px !important;
+  }
+  .tm_table.tm_style1 {
+    margin-top: 0 !important;
+  }
+  
+  /* Ensure all spacing matches web version exactly */
+  .tm_invoice.tm_style1.tm_type1 .tm_invoice_info {
+    padding: 4px 0 !important;
+  }
+  .tm_invoice.tm_style1.tm_type1 .tm_card_note {
+    margin-bottom: 10px !important;
+  }
+  .tm_invoice_footer .tm_left_footer {
+    padding: 10px 15px !important;
+  }
+  .tm_invoice_footer .tm_right_footer table {
+    margin-top: 15px !important;
+  }
+  .tm_mb15 {
+    margin-bottom: 15px !important;
+  }
+  .tm_mb25 {
+    margin-bottom: 25px !important;
+  }
+  
+  /* Additional spacing overrides for exact web/print match */
+  .tm_invoice.tm_style1.tm_type1 {
+    padding: 0px 50px 30px !important;
+  }
+  .tm_invoice.tm_style1.tm_type1 .tm_invoice_head {
+    height: 70px !important;
+    padding: 10px 0 !important;
+  }
+  .tm_invoice.tm_style1.tm_type1 .tm_logo img {
+    max-height: 45px !important;
+  }
+  .tm_invoice.tm_style1.tm_type1 .tm_invoice_right {
+    padding: 5px 0 !important;
+  }
+  .tm_invoice.tm_style1.tm_type1 .tm_invoice_seperator {
+    min-height: 18px !important;
+    border-radius: 8px !important;
+    background: none !important;
+    -webkit-print-color-adjust: exact;
+  }
+  .tm_invoice.tm_style1.tm_type1 .tm_invoice_seperator img {
+    display: none !important;
+  }
+  .tm_invoice_footer {
+    margin-top: 0 !important;
+  }
+  
+  /* Fix table width and Total Value column in print */
+  .tm_table_responsive {
+    overflow: visible !important;
+  }
+  .tm_table_responsive > table {
+    min-width: auto !important;
+    width: 100% !important;
+  }
+  .tm_table_responsive > table th.tm_width_3:last-child,
+  .tm_table_responsive > table td.tm_width_3:last-child {
+    width: 20% !important;
+    min-width: 80px !important;
+  }
+  
+  /* Ensure table fits on print page */
+  .tm_invoice {
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+  .tm_table {
+    page-break-inside: avoid !important;
   }
   .tm_accent_bg_10 {
     background-color: rgba(0, 122, 255, 0.1) !important;

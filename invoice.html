@@ -47,7 +47,7 @@
           </div>
           <div class="tm_invoice_info tm_mb25">
             <div class="tm_card_note "><b i class="tm_primary_color" id="invoice_head">Payment Method: </b> <span id="payment_method"></span> <br>  <b class="tm_primary_color" id="invoice_head">Date: </b><span id="invoice_date"></span> </div>
-            <div class="tm_invoice_info_list tm_white_color">
+            <div style="background-color: #1B5F92; padding-top: 14px; padding-bottom: 14px; padding-left: 40px; padding-right: 9px; border-top-left-radius: 8px;  border-bottom-left-radius: 25px;" class="tm_invoice_info_list tm_white_color">
               <p class="tm_invoice_number tm_m0" id="invoice_number"></p>
               <p class="tm_invoice_date tm_m0" id="customer_gst"></p>
             </div>
@@ -74,7 +74,7 @@
                   <thead>
                     <tr class="tm_accent_bg">
                       <th class="tm_width_1 tm_semi_bold tm_white_color">Sno.</th>
-                      <th class="tm_width_4 tm_semi_bold tm_white_color">Item Name</th>
+                      <th class="tm_width_3 tm_semi_bold tm_white_color">Item Name</th>
                       <th class="tm_width_2 tm_semi_bold tm_white_color">HSN</th>
                       <th class="tm_width_1 tm_semi_bold tm_white_color">Quantity</th>
                       <th class="tm_width_2 tm_semi_bold tm_white_color">Rate</th>
@@ -330,21 +330,46 @@
             // Populate Item Details
             var itemDetailsHtml = '';
             var goods_price = 0;
+            var totalRows = 23; // Maximum number of rows to display
+            
             if (data.items && data.items.length > 0) {
               data.items.forEach(function(item, index) {
                 var oneprice = item.quantity * item.price_of_one;
                 goods_price += oneprice;
                 itemDetailsHtml += '<tr>' +
                   '<td class="tm_width_1">' + (index + 1) + '</td>' +
-                  '<td class="tm_width_4">' + (item.product ? item.product.name : 'Unknown Product') + '</td>' +
+                  '<td class="tm_width_3">' + (item.product ? item.product.name : 'Unknown Product') + '</td>' +
                   '<td class="tm_width_2">' + (item.product ? item.product.hsn_code : 'N/A') + '</td>' +
                   '<td class="tm_width_1">' + item.quantity + '</td>' +
                   '<td class="tm_width_2">' + item.price_of_one.toFixed(2) + '</td>' +
                   '<td class="tm_width_3 tm_text_right">' + oneprice.toFixed(2) + '</td>' +
                   '</tr>';
               });
+              
+              // Add empty rows to fill up to 23 rows total with sequential numbering
+              var currentItemCount = data.items.length;
+              for (var i = currentItemCount; i < totalRows; i++) {
+                itemDetailsHtml += '<tr>' +
+                  '<td class="tm_width_1">' + (i + 1) + '</td>' +
+                  '<td class="tm_width_3">&nbsp;</td>' +
+                  '<td class="tm_width_2">&nbsp;</td>' +
+                  '<td class="tm_width_1">&nbsp;</td>' +
+                  '<td class="tm_width_2">&nbsp;</td>' +
+                  '<td class="tm_width_3 tm_text_right">&nbsp;</td>' +
+                  '</tr>';
+              }
             } else {
-              itemDetailsHtml = '<tr><td colspan="6">No items found</td></tr>';
+              // If no items, add 23 empty rows with sequential numbering
+              for (var i = 0; i < totalRows; i++) {
+                itemDetailsHtml += '<tr>' +
+                  '<td class="tm_width_1">' + (i + 1) + '</td>' +
+                  '<td class="tm_width_3">&nbsp;</td>' +
+                  '<td class="tm_width_2">&nbsp;</td>' +
+                  '<td class="tm_width_1">&nbsp;</td>' +
+                  '<td class="tm_width_2">&nbsp;</td>' +
+                  '<td class="tm_width_3 tm_text_right">&nbsp;</td>' +
+                  '</tr>';
+              }
             }
             $('#item_details').html(itemDetailsHtml);
 
@@ -419,7 +444,7 @@
         });
     
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('Archit_Art_Gallery_Invoice.pdf');
+        pdf.save('Invoicemate_Invoice.pdf');
       }).catch(function(error) {
         console.error('Error in PDF generation:', error);
         alert('An error occurred while generating the PDF. Please try again.');
