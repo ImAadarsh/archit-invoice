@@ -38,12 +38,33 @@ main {
 }
 #billed_to, #invoice_to{
   line-height: 1.10em !important;
-  font-size: 10px !important;
+  font-size: 12px !important;
+}
+
+/* Add 5px gap above Mobile Number in both sections */
+#billed_to b,
+#invoice_to b {
+  padding-top: 5px !important;
+  display: inline;
+}
+
+/* Ensure proper horizontal split and gap for Ship To and Billed To */
+.tm_invoice_head.tm_mb10 {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.tm_invoice_head.tm_mb10 .tm_invoice_left,
+.tm_invoice_head.tm_mb10 .tm_invoice_right {
+  flex: 1;
+  width: 50%;
 }
 
 /* Compact styling for bank details and address sections */
 #bank_details {
-  font-size: 10px !important;
+  font-size: 12px !important;
   line-height: 1.2em !important;
   margin: 0;
   padding: 0;
@@ -1239,7 +1260,7 @@ hr {
   -webkit-box-flex: 0;
       -ms-flex: none;
           flex: none;
-  width: 60%;
+  width: 50%;
 }
 .tm_invoice.tm_style1 .tm_invoice_table {
   grid-gap: 1px;
