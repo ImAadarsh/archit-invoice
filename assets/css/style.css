@@ -475,7 +475,7 @@ th {
 
 /* Zebra striping for table rows */
 .tm_table tbody tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: #e9ecef;
 }
 
 .tm_table tbody tr:nth-child(odd) {
@@ -484,7 +484,7 @@ th {
 
 /* Ensure alternating colors work for invoice table specifically */
 .tm_invoice .tm_table tbody tr:nth-child(even) {
-  background-color: #f8f9fa;
+  background-color: #e9ecef;
 }
 
 .tm_invoice .tm_table tbody tr:nth-child(odd) {
@@ -1166,6 +1166,28 @@ hr {
 .tm_note.tm_text_center hr {
   margin-bottom: 3px;
   height: 0.5px;
+}
+
+/* Fix white text visibility for amount sections */
+.tm_invoice_footer .tm_left_footer .tm_white_color {
+  color: #333 !important;
+}
+
+.tm_invoice_footer .tm_right_footer .tm_white_color {
+  color: #333 !important;
+}
+
+/* Highlight Amount in Words section */
+.tm_invoice_footer .tm_left_footer table tbody tr.tm_accent_bg {
+  background-color: #1B5F92 !important;
+  border: 1px solid #1B5F92;
+  border-radius: 4px;
+}
+
+.tm_invoice_footer .tm_left_footer table tbody tr.tm_accent_bg td {
+  padding: 8px 12px;
+  font-weight: 500;
+  color: #ffffff !important;
 }
 
 .tm_font_style_normal {
@@ -2370,7 +2392,7 @@ hr {
     -webkit-print-color-adjust: exact;
   }
   .tm_table tbody tr:nth-child(even) {
-    background-color: #f8f9fa !important;
+    background-color: #e9ecef !important;
     -webkit-print-color-adjust: exact;
   }
   .tm_table tbody tr:nth-child(odd) {
@@ -2378,11 +2400,31 @@ hr {
     -webkit-print-color-adjust: exact;
   }
   .tm_invoice .tm_table tbody tr:nth-child(even) {
-    background-color: #f8f9fa !important;
+    background-color: #e9ecef !important;
     -webkit-print-color-adjust: exact;
   }
   .tm_invoice .tm_table tbody tr:nth-child(odd) {
     background-color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+  }
+  .tm_invoice_footer .tm_left_footer .tm_white_color {
+    color: #333 !important;
+    -webkit-print-color-adjust: exact;
+  }
+  .tm_invoice_footer .tm_right_footer .tm_white_color {
+    color: #333 !important;
+    -webkit-print-color-adjust: exact;
+  }
+  .tm_invoice_footer .tm_left_footer table tbody tr.tm_accent_bg {
+    background-color: #1B5F92 !important;
+    border: 1px solid #1B5F92 !important;
+    border-radius: 4px !important;
+    -webkit-print-color-adjust: exact;
+  }
+  .tm_invoice_footer .tm_left_footer table tbody tr.tm_accent_bg td {
+    padding: 8px 12px !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
     -webkit-print-color-adjust: exact;
   }
   .tm_accent_bg_10 {
