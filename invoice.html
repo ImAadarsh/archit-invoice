@@ -78,6 +78,7 @@
                       <th class="tm_width_2 tm_semi_bold tm_white_color">HSN</th>
                       <th class="tm_width_1 tm_semi_bold tm_white_color">Quantity</th>
                       <th class="tm_width_2 tm_semi_bold tm_white_color">Rate</th>
+                      <th class="tm_width_1 tm_semi_bold tm_white_color">GST Rate</th>
                       <th class="tm_width_3 tm_semi_bold tm_white_color tm_text_right">Total Value</th>
                     </tr>
                   </thead>
@@ -112,15 +113,15 @@
                       <td class="tm_width_3 tm_primary_color tm_bold tm_text_right" id="total_value_of_goods">0.00</td>
                     </tr>
                     <tr class="tm_gray_bg ">
-                      <td class="tm_width_5 tm_primary_color ">Delhi GST <span class="tm_ternary_color"> @ 9 %</span></td>
+                      <td class="tm_width_5 tm_primary_color " id="state_gst_label">State GST</td>
                       <td class="tm_width_5 tm_primary_color  tm_text_right" id="delhi_gst">0.00</td>
                     </tr>
                     <tr class="tm_gray_bg ">
-                      <td class="tm_width_5 tm_primary_color ">CGST <span class="tm_ternary_color"> @ 9 %</span></td>
+                      <td class="tm_width_5 tm_primary_color ">CGST</td>
                       <td class="tm_width_5 tm_primary_color  tm_text_right" id="cgst">0.00</td>
                     </tr>
                     <tr class="tm_gray_bg ">
-                      <td class="tm_width_5 tm_primary_color ">IGST <span class="tm_ternary_color"> @ 18 %</span></td>
+                      <td class="tm_width_5 tm_primary_color ">IGST</td>
                       <td class="tm_width_5 tm_primary_color  tm_text_right" id="igst">0.00</td>
                     </tr>
                     <tr class="tm_accent_bg">
@@ -132,10 +133,10 @@
               </div>
             </div>
           </div>
-          <div class="tm_note tm_text_center tm_font_style_normal">
-            <hr class="tm_mb5">
-            <p class="tm_m0 tm_primary_color" id="copyright_text">© Powered By Invoicemate - 2025</p>
-          </div>
+        </div>
+        <div class=" tm_text_center tm_font_style_normal">
+          <hr class="">
+          <p class="tm_m0 tm_primary_color" id="copyright_text">© Powered By Invoicemate - 2025</p>
         </div>
       </div>
       <div class="tm_invoice_btns tm_hide_print">
@@ -342,6 +343,7 @@
                   '<td class="tm_width_2">' + (item.product ? item.product.hsn_code : 'N/A') + '</td>' +
                   '<td class="tm_width_1">' + item.quantity + '</td>' +
                   '<td class="tm_width_2">' + item.price_of_one.toFixed(2) + '</td>' +
+                  '<td class="tm_width_1">' + (item.gst_rate || 0) + '%</td>' +
                   '<td class="tm_width_3 tm_text_right">' + oneprice.toFixed(2) + '</td>' +
                   '</tr>';
               });
@@ -355,6 +357,7 @@
                   '<td class="tm_width_2">&nbsp;</td>' +
                   '<td class="tm_width_1">&nbsp;</td>' +
                   '<td class="tm_width_2">&nbsp;</td>' +
+                  '<td class="tm_width_1">&nbsp;</td>' +
                   '<td class="tm_width_3 tm_text_right">&nbsp;</td>' +
                   '</tr>';
               }
@@ -367,6 +370,7 @@
                   '<td class="tm_width_2">&nbsp;</td>' +
                   '<td class="tm_width_1">&nbsp;</td>' +
                   '<td class="tm_width_2">&nbsp;</td>' +
+                  '<td class="tm_width_1">&nbsp;</td>' +
                   '<td class="tm_width_3 tm_text_right">&nbsp;</td>' +
                   '</tr>';
               }
@@ -375,6 +379,11 @@
 
             // Populate Total Value of Goods
             $('#total_value_of_goods').text(goods_price.toFixed(2));
+
+            // Update State GST label with location state name
+            if (data.location_state) {
+              $('#state_gst_label').text(data.location_state + ' GST');
+            }
 
             // Populate GST values
             $('#delhi_gst').text((data.total_dgst || 0).toFixed(2));
