@@ -35,6 +35,26 @@
           display: none !important;
         }
       }
+      
+      /* Fix for address section overlapping with table */
+      .tm_invoice_head {
+        position: relative;
+        z-index: 1;
+        margin-bottom: 20px !important;
+        clear: both;
+      }
+      
+      .tm_invoice_head p {
+        margin-bottom: 5px;
+        line-height: 1.6;
+      }
+      
+      .tm_table {
+        position: relative;
+        z-index: 2;
+        clear: both;
+        margin-top: 20px;
+      }
   </style>
 </head>
 
@@ -59,41 +79,73 @@
   <script src="assets/js/html2canvas.min.js"></script>
   <script>
     function amountToWords(amount) {
-        const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
-        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
-    
-        function convertLessThanOneThousand(n) {
-            if (n < 20) return units[n];
-            const digit = n % 10;
-            if (n < 100) return tens[Math.floor(n / 10)] + (digit ? " " + units[digit] : "");
-            const digit2 = n % 100;
-            return units[Math.floor(n / 100)] + " Hundred" + (digit2 ? " and " + convertLessThanOneThousand(digit2) : "");
-        }
-    
-        function convert(n) {
-            if (n < 1000) return convertLessThanOneThousand(n);
-            const g = Math.floor(n / 1000000000);
-            const m = Math.floor((n % 1000000000) / 1000000);
-            const t = Math.floor((n % 1000000) / 1000);
-            const h = n % 1000;
-            return (g ? convertLessThanOneThousand(g) + " Billion " : "") +
-                   (m ? convertLessThanOneThousand(m) + " Million " : "") +
-                   (t ? convertLessThanOneThousand(t) + " Thousand " : "") +
-                   (h ? convertLessThanOneThousand(h) : "");
-        }
-    
-        const parts = amount.toString().split('.');
-        const wholePart = parseInt(parts[0]);
-        const paisaPart = parts.length > 1 ? parseInt(parts[1].padEnd(2, '0')) : 0;
-    
-        let result = convert(wholePart).trim();
-        
-        if (paisaPart > 0) {
-            result += " and " + convertLessThanOneThousand(paisaPart) + " Paisa";
-        }
-    
-        return result + " Only/-";
+      const units = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+      const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+      
+      function convertLessThanOneThousand(n) {
+          if (n === 0) return '';
+          if (n < 20) return units[n];
+          const digit = n % 10;
+          if (n < 100) return tens[Math.floor(n / 10)] + (digit ? " " + units[digit] : "");
+          const digit2 = n % 100;
+          return units[Math.floor(n / 100)] + " Hundred" + (digit2 ? " and " + convertLessThanOneThousand(digit2) : "");
       }
+      
+      function convertIndianSystem(n) {
+          if (n === 0) return "Zero";
+          
+          // Handle numbers less than 1000
+          if (n < 1000) return convertLessThanOneThousand(n);
+          
+          // Extract each denomination according to Indian numbering system
+          const crore = Math.floor(n / 10000000);
+          const lakh = Math.floor((n % 10000000) / 100000);
+          const thousand = Math.floor((n % 100000) / 1000);
+          const remaining = n % 1000;
+          
+          let result = "";
+          
+          if (crore > 0) {
+              result += convertLessThanOneThousand(crore) + " Crore ";
+          }
+          
+          if (lakh > 0) {
+              result += convertLessThanOneThousand(lakh) + " Lakh ";
+          }
+          
+          if (thousand > 0) {
+              result += convertLessThanOneThousand(thousand) + " Thousand ";
+          }
+          
+          if (remaining > 0) {
+              result += convertLessThanOneThousand(remaining);
+          }
+          
+          return result.trim();
+      }
+      
+      // Parse the amount
+      const parts = amount.toString().split('.');
+      const wholePart = parseInt(parts[0]);
+      let paisaPart = 0;
+      
+      // Handle paisa part correctly
+      if (parts.length > 1) {
+          // Ensure we only take first two digits for paisa
+          const paisaStr = parts[1].padEnd(2, '0').substring(0, 2);
+          paisaPart = parseInt(paisaStr);
+      }
+      
+      // Convert whole part using Indian numbering system
+      let result = convertIndianSystem(wholePart);
+      
+      // Add paisa part if exists
+      if (paisaPart > 0) {
+          result += " and " + convertLessThanOneThousand(paisaPart) + " Paisa";
+      }
+      
+      return result + " Only/-";
+    }
   
       function formatAddress(addressData, name, mobileNumber) {
         let formattedAddress = '';
@@ -175,104 +227,147 @@
       function generateInvoiceHtml(invoice, index) {
         var itemsHtml = generateItemsHtml(invoice.items);
         var addressInfo = formatAddress(invoice.billing_address, invoice.name, invoice.mobile_number);
+        var goods_price = 0;
+        
+        // Calculate goods price
+        if (invoice.items && invoice.items.length > 0) {
+          invoice.items.forEach(function(item) {
+            goods_price += item.quantity * item.price_of_one;
+          });
+        }
+
+        // Prepare bank details
+        var bankDetailsHtml = '';
+        if (invoice.bank_details) {
+          bankDetailsHtml = 'A/C Name: ' + invoice.bank_details.account_name + '<br>' +
+                          invoice.bank_details.bank_name + ' ' + invoice.bank_details.address + '<br>' +
+                          '<b>A/C No:</b> ' + invoice.bank_details.account_no + '<br>' +
+                          'IFSC Code: ' + invoice.bank_details.ifsc_code;
+        }
+
+        // Get business logo
+        var logoSrc = invoice.business_logo ? 'https://api.invoicemate.in/storage/app/' + invoice.business_logo : 'assets/img/invoice_mate.svg';
+
+        // Get state GST label - try multiple sources
+        var stateGstLabel = 'State GST';
+        if (invoice.location_state) {
+          stateGstLabel = invoice.location_state + ' GST';
+        } else if (invoice.billing_address && invoice.billing_address.state) {
+          stateGstLabel = invoice.billing_address.state + ' GST';
+        } else if (invoice.business_info && invoice.business_info.state) {
+          stateGstLabel = invoice.business_info.state + ' GST';
+        }
+        
+        // Debug logging
+        console.log('Invoice data:', invoice);
+        console.log('State GST Label:', stateGstLabel);
 
         return `
-          <div class="tm_invoice tm_style1 tm_type1" id="tm_download_section_${index}">
-            <div class="tm_invoice_in">
-              <div class="tm_invoice_head tm_top_head tm_mb15 tm_align_center">
-                <div class="tm_invoice_left">
-                  <div class="tm_logo"><img src="assets/img/invoice_mate.svg" alt="Logo"></div>
-                </div>
-                <div class="tm_invoice_right tm_text_right">
-                  <p style="margin-top: 12px;" class="tm_black_color">
-                   ${invoice.business_info.address}<br>
-                  <b>Ph. No: ${invoice.business_info.phone}, ${invoice.business_info.alternate_phone}</b>
-                      <br>GSTIN: <b>${invoice.business_info.gst}</b>
-                  </p>
-                </div>
-              </div>
-              <div class="tm_invoice_info tm_mb25">
-                <div class="tm_card_note"><b class="tm_primary_color" id="invoice_head">Payment Method: </b> ${invoice.payment_mode} <br>  <b class="tm_primary_color" id="invoice_head">Date: </b>${new Date(invoice.invoice_date).toLocaleDateString()} </div>
-                <div class="tm_invoice_info_list tm_white_color">
-                  <p class="tm_invoice_number tm_m0">Invoice No: #${invoice.serial_no}</p>
-                  <p class="tm_invoice_date tm_m0">GSTIN: ${invoice.doc_no || 'Not Available'}</p>
-                </div>
-                <div class="tm_invoice_seperator tm_accent_bg"></div>
-              </div>
-              <div class="tm_invoice_head tm_mb10">
-                <div class="tm_invoice_left">
-                  <p class="tm_mb2"><b class="tm_primary_color">Ship To:</b></p>
-                  <p>${addressInfo}</p>
-                </div>
-                <div class="tm_invoice_right tm_text_right">
-                  <p class="tm_mb2"><b class="tm_primary_color">Billed To:</b></p>
-                  <p>${addressInfo}</p>
-                </div>
-              </div>
-              <div class="tm_table tm_style1">
-                <div class="">
-                  <div class="tm_table_responsive">
-                    <table>
-                      <thead>
-                        <tr class="tm_accent_bg">
-                          <th class="tm_width_1 tm_semi_bold tm_white_color">Sno.</th>
-                          <th class="tm_width_4 tm_semi_bold tm_white_color">Item Name</th>
-                          <th class="tm_width_2 tm_semi_bold tm_white_color">HSN</th>
-                          <th class="tm_width_1 tm_semi_bold tm_white_color">Quantity</th>
-                          <th class="tm_width_2 tm_semi_bold tm_white_color">Rate</th>
-                          <th class="tm_width_3 tm_semi_bold tm_white_color tm_text_right">Total Value</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        ${itemsHtml}
-                      </tbody>
-                    </table>
+          <div class="tm_invoice_wrap">
+            <div class="tm_invoice tm_style1 tm_type1" id="tm_download_section_${index}">
+              <div class="tm_invoice_in">
+                <div class="tm_invoice_head tm_top_head tm_mb15 tm_align_center">
+                  <div class="tm_invoice_left">
+                    <div class="tm_logo"><img src="${logoSrc}" alt="Logo"></div>
+                  </div>
+                  <div class="tm_invoice_right tm_text_right business_location_data">
+                    <p style="margin-top: 25px; font-size: 12px;" class="tm_black_color">
+                      ${invoice.business_info.address || ''}<br>
+                      <b>Ph. No: ${invoice.business_info.phone || ''}${invoice.business_info.alternate_phone ? ', ' + invoice.business_info.alternate_phone : ''}</b><br>
+                      GSTIN: <b>${invoice.business_info.gst || ''}</b>
+                    </p>
                   </div>
                 </div>
-                <div class="tm_invoice_footer tm_border_top tm_mb15 tm_m0_md">
-                  <div class="tm_left_footer">
-                    <p class="tm_mb2"><b class="tm_primary_color">Bank Details: </b></p>
-                    <p class="tm_m0">A/C Name: ARCHIT ART GALLERY <br>INDIAN OVERSEAS BANK GOLE MARKET <br>NEW DELHI 110001<br> <b>A/C No:</b> 084002000001156 <br> IFSC Code: IOBA0000840 </p>
-                    <br>
-                    <table class="tm_mb15">
-                      <tbody>
-                        <tr class="tm_accent_bg">
-                          <td class="tm_width_4 tm_border_top_0 tm_white_color"><b>Amount in Words:</b><br> ${amountToWords(invoice.total_amount)}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                <div class="tm_invoice_info tm_mb25">
+                  <div class="tm_card_note"><b class="tm_primary_color" id="invoice_head">Payment Method: </b> <span>${invoice.payment_mode || 'Not specified'}</span> <br>  <b class="tm_primary_color" id="invoice_head">Date: </b><span>${invoice.invoice_date ? new Date(invoice.invoice_date).toLocaleDateString() : 'Not specified'}</span> </div>
+                  <div style="background-color: #1B5F92; padding-top: 14px; padding-bottom: 14px; padding-left: 40px; padding-right: 9px; border-top-left-radius: 8px; border-bottom-left-radius: 25px;" class="tm_invoice_info_list tm_white_color">
+                    <p class="tm_invoice_number tm_m0">${invoice.serial_no ? 'Invoice No: #' + invoice.serial_no : 'Performa Invoice'}</p>
+                    <p class="tm_invoice_date tm_m0">${invoice.doc_no ? 'GSTIN: #' + invoice.doc_no : 'GSTIN: Not Available'}</p>
                   </div>
-                  <div class="tm_right_footer">
-                    <table class="tm_mb15">
-                      <tbody>
-                        <tr class="tm_gray_bg">
-                          <td class="tm_width_3 tm_primary_color">Total Value of Goods:</td>
-                          <td class="tm_width_3 tm_primary_color tm_text_right">${invoice.total_amount - invoice.total_dgst - invoice.total_cgst - invoice.total_igst}</td>
-                        </tr>
-                        <tr class="tm_gray_bg">
-                          <td class="tm_width_5 tm_primary_color">Delhi GST <span class="tm_ternary_color"> @ 9 %</span></td>
-                          <td class="tm_width_5 tm_primary_color tm_text_right">${invoice.total_dgst}</td>
-                        </tr>
-                        <tr class="tm_gray_bg">
-                          <td class="tm_width_5 tm_primary_color">CGST <span class="tm_ternary_color"> @ 9 %</span></td>
-                          <td class="tm_width_5 tm_primary_color tm_text_right">${invoice.total_cgst}</td>
-                        </tr>
-                        <tr class="tm_gray_bg">
-                          <td class="tm_width_5 tm_primary_color">IGST <span class="tm_ternary_color"> @ 18 %</span></td>
-                          <td class="tm_width_5 tm_primary_color tm_text_right">${invoice.total_igst}</td>
-                        </tr>
-                        <tr class="tm_accent_bg">
-                          <td class="tm_width_6 tm_border_top_0 tm_bold tm_white_color">Amount Chargeable</td>
-                          <td class="tm_width_5 tm_border_top_0 tm_bold tm_white_color tm_text_right">${invoice.total_amount}</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <div class="tm_invoice_seperator tm_accent_bg"></div>
+                </div>
+                <div class="tm_invoice_head tm_mb10">
+                  <div class="tm_invoice_left">
+                    
+                    <p class="tm_mb2"><b class="tm_primary_color">Ship To:</b></p>
+                    <p id="billed_to_${index}">${addressInfo}</p>
+                  </div>
+                  <div class="tm_invoice_right tm_text_right">
+                    <p id="" class="tm_mb2"><b class="tm_primary_color">Billed To:</b></p>
+                    <p id="invoice_to_${index}">${addressInfo}</p>
+                  </div>
+                </div>
+                <br>
+                <div class="tm_table tm_style1">
+                  <div class="">
+                    <div class="tm_table_responsive">
+                      <table>
+                        <thead>
+                          <tr class="tm_accent_bg">
+                            <th class="tm_width_1 tm_semi_bold tm_white_color">Sno.</th>
+                            <th class="tm_width_3 tm_semi_bold tm_white_color">Item Name</th>
+                            <th class="tm_width_2 tm_semi_bold tm_white_color">HSN</th>
+                            <th class="tm_width_1 tm_semi_bold tm_white_color">Quantity</th>
+                            <th class="tm_width_2 tm_semi_bold tm_white_color">Rate</th>
+                            <th class="tm_width_1 tm_semi_bold tm_white_color">GST Rate</th>
+                            <th class="tm_width_3 tm_semi_bold tm_white_color tm_text_right">Total Value</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          ${itemsHtml}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="tm_invoice_footer tm_border_top tm_mb15 tm_m0_md">
+                    <div class="tm_left_footer">
+                      <p class="tm_mb2"><b class="tm_primary_color">Bank Details: </b></p>
+                      <p class="tm_m0">${bankDetailsHtml}</p>
+                      <br>
+                      <table class="tm_mb15">
+                        <tbody>
+                          <tr class="tm_accent_bg">
+                            <td style="background-color: #1B5F92; padding-top: 14px; padding-bottom: 14px; padding-left: 9px; padding-right: 40px; border-top-right-radius: 8px; border-bottom-right-radius: 25px; border: none; border-color: transparent !important; border-width: 0px !important;" class="tm_width_4 tm_border_top_0 tm_white_color"><b>Amount in Words:</b><br> <span>${amountToWords(invoice.total_amount || 0)}</span></td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="tm_right_footer">
+                      <table class="tm_mb15">
+                        <tbody>
+                          <tr class="tm_gray_bg">
+                            <td class="tm_width_3 tm_primary_color">Less Discount</td>
+                            <td class="tm_width_3 tm_primary_color tm_text_right">0.00</td>
+                          </tr>
+                          <tr class="tm_gray_bg">
+                            <td class="tm_width_3 tm_primary_color tm_bold">Total Value of Goods:</td>
+                            <td class="tm_width_3 tm_primary_color tm_bold tm_text_right">${goods_price.toFixed(2)}</td>
+                          </tr>
+                          <tr class="tm_gray_bg">
+                            <td class="tm_width_5 tm_primary_color">${stateGstLabel}</td>
+                            <td class="tm_width_5 tm_primary_color tm_text_right">${(invoice.total_dgst || 0).toFixed(2)}</td>
+                          </tr>
+                          <tr class="tm_gray_bg">
+                            <td class="tm_width_5 tm_primary_color">CGST</td>
+                            <td class="tm_width_5 tm_primary_color tm_text_right">${(invoice.total_cgst || 0).toFixed(2)}</td>
+                          </tr>
+                          <tr class="tm_gray_bg">
+                            <td class="tm_width_5 tm_primary_color">IGST</td>
+                            <td class="tm_width_5 tm_primary_color tm_text_right">${(invoice.total_igst || 0).toFixed(2)}</td>
+                          </tr>
+                          <tr class="tm_accent_bg">
+                            <td class="tm_width_6 tm_border_top_0 tm_bold tm_white_color">Amount Chargeable</td>
+                            <td class="tm_width_5 tm_border_top_0 tm_bold tm_white_color tm_text_right">${(invoice.total_amount || 0).toFixed(2)}</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 </div>
               </div>
-              <div class="tm_note tm_text_center tm_font_style_normal">
-                <hr class="tm_mb5">
-                <p class="tm_m0 tm_primary_color">© Archit Art Gallery - 2024  </p>
+              <div class=" tm_text_center tm_font_style_normal">
+                <hr class="">
+                <p class="tm_m0 tm_primary_color">© Powered By Invoicemate - 2025</p>
               </div>
             </div>
           </div>
@@ -280,16 +375,58 @@
       }
 
       function generateItemsHtml(items) {
-        return items.map((item, index) => `
-          <tr>
-            <td class="tm_width_1">${index + 1}</td>
-            <td class="tm_width_4">${item.product ? item.product.name : 'Unknown Product'}</td>
-            <td class="tm_width_2">${item.product ? item.product.hsn_code : 'N/A'}</td>
-            <td class="tm_width_1">${item.quantity}</td>
-            <td class="tm_width_2">${item.price_of_one.toFixed(2)}</td>
-            <td class="tm_width_3 tm_text_right">${(item.quantity * item.price_of_one).toFixed(2)}</td>
-          </tr>
-        `).join('');
+        var itemsHtml = '';
+        var totalRows = 20; // Maximum number of rows to display
+        
+        if (items && items.length > 0) {
+          items.forEach(function(item, index) {
+            var oneprice = item.quantity * item.price_of_one;
+            itemsHtml += `
+              <tr>
+                <td class="tm_width_1">${index + 1}</td>
+                <td class="tm_width_3">${item.product ? item.product.name : 'Unknown Product'}</td>
+                <td class="tm_width_2">${item.product ? item.product.hsn_code : 'N/A'}</td>
+                <td class="tm_width_1">${item.quantity}</td>
+                <td class="tm_width_2">${item.price_of_one.toFixed(2)}</td>
+                <td class="tm_width_1">${item.gst_rate || 0}%</td>
+                <td class="tm_width_3 tm_text_right">${oneprice.toFixed(2)}</td>
+              </tr>
+            `;
+          });
+          
+          // Add empty rows to fill up to 20 rows total with sequential numbering
+          var currentItemCount = items.length;
+          for (var i = currentItemCount; i < totalRows; i++) {
+            itemsHtml += `
+              <tr>
+                <td class="tm_width_1">${i + 1}</td>
+                <td class="tm_width_3">&nbsp;</td>
+                <td class="tm_width_2">&nbsp;</td>
+                <td class="tm_width_1">&nbsp;</td>
+                <td class="tm_width_2">&nbsp;</td>
+                <td class="tm_width_1">&nbsp;</td>
+                <td class="tm_width_3 tm_text_right">&nbsp;</td>
+              </tr>
+            `;
+          }
+        } else {
+          // If no items, add 20 empty rows with sequential numbering
+          for (var i = 0; i < totalRows; i++) {
+            itemsHtml += `
+              <tr>
+                <td class="tm_width_1">${i + 1}</td>
+                <td class="tm_width_3">&nbsp;</td>
+                <td class="tm_width_2">&nbsp;</td>
+                <td class="tm_width_1">&nbsp;</td>
+                <td class="tm_width_2">&nbsp;</td>
+                <td class="tm_width_1">&nbsp;</td>
+                <td class="tm_width_3 tm_text_right">&nbsp;</td>
+              </tr>
+            `;
+          }
+        }
+        
+        return itemsHtml;
       }
     
       $('#tm_print_bulk_btn').on('click', function() {
