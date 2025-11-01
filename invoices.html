@@ -9,7 +9,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="author" content="Endeavour Digital">
   <!-- Site Title -->
-  <title>Archit Art Gallery Bulk Invoices</title>
+  <title>InvoiceMate Bulk Invoices</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <style>
     @media (max-width: 600px) {
@@ -144,9 +144,17 @@
         }
       }
       
+      // Check if there are any valid parameters
+      if (queryParams.length === 0) {
+        $('#invoices_container').html('<div style="text-align: center; padding: 50px; font-size: 18px; color: #666;"><h2>No Parameters Provided</h2><p>Please provide at least one filter parameter (business_id, location_id, date range, etc.) to generate invoices.</p></div>');
+        $('.tm_hide_print').hide();
+        return;
+      }
+      
       if (queryParams.length > 0) {
         apiUrl += '?' + queryParams.join('&');
       }
+      
       // Fetch bulk invoice data
       $.ajax({
         url: apiUrl,
@@ -156,10 +164,12 @@
             generateInvoices(response.data);
           } else {
             console.error('Invalid response structure:', response);
+            $('#invoices_container').html('<div style="text-align: center; padding: 50px; font-size: 18px; color: #666;"><h2>Error</h2><p>Unable to retrieve invoice data. Please try again.</p></div>');
           }
         },
         error: function(xhr, status, error) {
           console.error('Error fetching data from API:', error);
+          $('#invoices_container').html('<div style="text-align: center; padding: 50px; font-size: 18px; color: #666;"><h2>Error</h2><p>Unable to retrieve invoice data. Please check your connection and try again.</p></div>');
         }
       });
 
@@ -234,7 +244,7 @@
                 <div class="tm_invoice_footer tm_border_top tm_mb15 tm_m0_md">
                   <div class="tm_left_footer">
                     <p class="tm_mb2"><b class="tm_primary_color">Bank Details: </b></p>
-                    <p class="tm_m0">A/C Name: ARCHIT ART GALLERY <br>INDIAN OVERSEAS BANK GOLE MARKET <br>NEW DELHI 110001<br> <b>A/C No:</b> 084002000001156 <br> IFSC Code: IOBA0000840 </p>
+                    <p class="tm_m0">A/C Name: InvoiceMate <br>INDIAN OVERSEAS BANK GOLE MARKET <br>NEW DELHI 110001<br> <b>A/C No:</b> 084002000001156 <br> IFSC Code: IOBA0000840 </p>
                     <br>
                     <table class="tm_mb15">
                       <tbody>
@@ -274,7 +284,7 @@
               </div>
               <div class="tm_note tm_text_center tm_font_style_normal">
                 <hr class="tm_mb5">
-                <p class="tm_m0 tm_primary_color">© Archit Art Gallery - 2024  </p>
+                <p class="tm_m0 tm_primary_color">© InvoiceMate - 2024  </p>
               </div>
             </div>
           </div>

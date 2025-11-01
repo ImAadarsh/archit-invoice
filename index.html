@@ -115,6 +115,14 @@
     $(document).ready(function() {
       // Extract query parameters from URL
       var urlParams = new URLSearchParams(window.location.search);
+      
+      // Check if there are any URL parameters
+      if (!urlParams.toString() || urlParams.toString().trim() === '') {
+        $('#bulk-invoice-container').html('<div style="text-align: center; padding: 50px; font-size: 18px; color: #666;"><h2>No Parameters Provided</h2><p>Please provide the required URL parameters to generate invoices.</p></div>');
+        $('.tm_invoice_btns').hide();
+        return;
+      }
+      
       var apiUrl = 'https://api.invoicemate.in/public/api/getBulkInvoices?' + urlParams.toString();
     
       // Fetch data from API
@@ -126,10 +134,12 @@
             renderInvoices(response.data);
           } else {
             console.error('Invalid response structure:', response);
+            $('#bulk-invoice-container').html('<div style="text-align: center; padding: 50px; font-size: 18px; color: #666;"><h2>Error</h2><p>Unable to retrieve invoice data. Please try again.</p></div>');
           }
         },
         error: function(xhr, status, error) {
           console.error('Error fetching data from API:', error);
+          $('#bulk-invoice-container').html('<div style="text-align: center; padding: 50px; font-size: 18px; color: #666;"><h2>Error</h2><p>Unable to retrieve invoice data. Please check your connection and try again.</p></div>');
         }
       });
     
