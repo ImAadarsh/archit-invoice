@@ -75,10 +75,10 @@
                     <tr class="tm_accent_bg">
                       <th class="tm_width_1 tm_semi_bold tm_white_color">Sno.</th>
                       <th class="tm_width_3 tm_semi_bold tm_white_color">Item Name</th>
-                      <th class="tm_width_2 tm_semi_bold tm_white_color">HSN</th>
+                      <th class="tm_width_2 tm_semi_bold tm_white_color tm_col_hsn">HSN</th>
                       <th class="tm_width_1 tm_semi_bold tm_white_color">Quantity</th>
                       <th class="tm_width_2 tm_semi_bold tm_white_color">Rate</th>
-                      <th class="tm_width_1 tm_semi_bold tm_white_color">GST Rate</th>
+                      <th class="tm_width_1 tm_semi_bold tm_white_color tm_col_gst">GST Rate</th>
                       <th class="tm_width_3 tm_semi_bold tm_white_color tm_text_right">Total Value</th>
                     </tr>
                   </thead>
@@ -112,15 +112,15 @@
                       <td class="tm_width_3 tm_primary_color tm_bold">Total Value of Goods:</td>
                       <td class="tm_width_3 tm_primary_color tm_bold tm_text_right" id="total_value_of_goods">0.00</td>
                     </tr>
-                    <tr class="tm_gray_bg ">
+                    <tr class="tm_gray_bg gst-row">
                       <td class="tm_width_5 tm_primary_color " id="state_gst_label">State GST</td>
                       <td class="tm_width_5 tm_primary_color  tm_text_right" id="delhi_gst">0.00</td>
                     </tr>
-                    <tr class="tm_gray_bg ">
+                    <tr class="tm_gray_bg gst-row">
                       <td class="tm_width_5 tm_primary_color ">CGST</td>
                       <td class="tm_width_5 tm_primary_color  tm_text_right" id="cgst">0.00</td>
                     </tr>
-                    <tr class="tm_gray_bg ">
+                    <tr class="tm_gray_bg gst-row">
                       <td class="tm_width_5 tm_primary_color ">IGST</td>
                       <td class="tm_width_5 tm_primary_color  tm_text_right" id="igst">0.00</td>
                     </tr>
@@ -332,47 +332,94 @@
             var itemDetailsHtml = '';
             var goods_price = 0;
             var totalRows = 20; // Maximum number of rows to display
+            var hasGST = false;
+
+            if (data.items && data.items.length > 0) {
+              hasGST = data.items.some(function(item) {
+                return Number(item.gst_rate) > 0;
+              });
+            }
+
+            if (!hasGST && ((Number(data.total_dgst) || 0) > 0 || (Number(data.total_cgst) || 0) > 0 || (Number(data.total_igst) || 0) > 0)) {
+              hasGST = true;
+            }
+
+            if (!hasGST) {
+              $('.tm_col_hsn').remove();
+              $('.tm_col_gst').remove();
+            }
             
             if (data.items && data.items.length > 0) {
               data.items.forEach(function(item, index) {
                 var oneprice = item.quantity * item.price_of_one;
                 goods_price += oneprice;
-                itemDetailsHtml += '<tr>' +
-                  '<td class="tm_width_1">' + (index + 1) + '</td>' +
-                  '<td class="tm_width_3">' + (item.product ? item.product.name : 'Unknown Product') + '</td>' +
-                  '<td class="tm_width_2">' + (item.product ? item.product.hsn_code : 'N/A') + '</td>' +
-                  '<td class="tm_width_1">' + item.quantity + '</td>' +
-                  '<td class="tm_width_2">' + item.price_of_one.toFixed(2) + '</td>' +
-                  '<td class="tm_width_1">' + (item.gst_rate || 0) + '%</td>' +
-                  '<td class="tm_width_3 tm_text_right">' + oneprice.toFixed(2) + '</td>' +
-                  '</tr>';
+                var rowCells = [
+                  '<td class="tm_width_1">' + (index + 1) + '</td>',
+                  '<td class="tm_width_3">' + (item.product ? item.product.name : 'Unknown Product') + '</td>'
+                ];
+
+                if (hasGST) {
+                  rowCells.push('<td class="tm_width_2">' + (item.product && item.product.hsn_code ? item.product.hsn_code : 'N/A') + '</td>');
+                }
+
+                rowCells.push('<td class="tm_width_1">' + item.quantity + '</td>');
+                rowCells.push('<td class="tm_width_2">' + item.price_of_one.toFixed(2) + '</td>');
+
+                if (hasGST) {
+                  var gstRate = Number(item.gst_rate) || 0;
+                  rowCells.push('<td class="tm_width_1">' + gstRate + '%</td>');
+                }
+
+                rowCells.push('<td class="tm_width_3 tm_text_right">' + oneprice.toFixed(2) + '</td>');
+
+                itemDetailsHtml += '<tr>' + rowCells.join('') + '</tr>';
               });
               
               // Add empty rows to fill up to 23 rows total with sequential numbering
               var currentItemCount = data.items.length;
               for (var i = currentItemCount; i < totalRows; i++) {
-                itemDetailsHtml += '<tr>' +
-                  '<td class="tm_width_1">' + (i + 1) + '</td>' +
-                  '<td class="tm_width_3">&nbsp;</td>' +
-                  '<td class="tm_width_2">&nbsp;</td>' +
-                  '<td class="tm_width_1">&nbsp;</td>' +
-                  '<td class="tm_width_2">&nbsp;</td>' +
-                  '<td class="tm_width_1">&nbsp;</td>' +
-                  '<td class="tm_width_3 tm_text_right">&nbsp;</td>' +
-                  '</tr>';
+                var emptyCells = [
+                  '<td class="tm_width_1">' + (i + 1) + '</td>',
+                  '<td class="tm_width_3">&nbsp;</td>'
+                ];
+
+                if (hasGST) {
+                  emptyCells.push('<td class="tm_width_2">&nbsp;</td>');
+                }
+
+                emptyCells.push('<td class="tm_width_1">&nbsp;</td>');
+                emptyCells.push('<td class="tm_width_2">&nbsp;</td>');
+
+                if (hasGST) {
+                  emptyCells.push('<td class="tm_width_1">&nbsp;</td>');
+                }
+
+                emptyCells.push('<td class="tm_width_3 tm_text_right">&nbsp;</td>');
+
+                itemDetailsHtml += '<tr>' + emptyCells.join('') + '</tr>';
               }
             } else {
               // If no items, add 23 empty rows with sequential numbering
               for (var i = 0; i < totalRows; i++) {
-                itemDetailsHtml += '<tr>' +
-                  '<td class="tm_width_1">' + (i + 1) + '</td>' +
-                  '<td class="tm_width_3">&nbsp;</td>' +
-                  '<td class="tm_width_2">&nbsp;</td>' +
-                  '<td class="tm_width_1">&nbsp;</td>' +
-                  '<td class="tm_width_2">&nbsp;</td>' +
-                  '<td class="tm_width_1">&nbsp;</td>' +
-                  '<td class="tm_width_3 tm_text_right">&nbsp;</td>' +
-                  '</tr>';
+                var emptyCellsNoItems = [
+                  '<td class="tm_width_1">' + (i + 1) + '</td>',
+                  '<td class="tm_width_3">&nbsp;</td>'
+                ];
+
+                if (hasGST) {
+                  emptyCellsNoItems.push('<td class="tm_width_2">&nbsp;</td>');
+                }
+
+                emptyCellsNoItems.push('<td class="tm_width_1">&nbsp;</td>');
+                emptyCellsNoItems.push('<td class="tm_width_2">&nbsp;</td>');
+
+                if (hasGST) {
+                  emptyCellsNoItems.push('<td class="tm_width_1">&nbsp;</td>');
+                }
+
+                emptyCellsNoItems.push('<td class="tm_width_3 tm_text_right">&nbsp;</td>');
+
+                itemDetailsHtml += '<tr>' + emptyCellsNoItems.join('') + '</tr>';
               }
             }
             $('#item_details').html(itemDetailsHtml);
@@ -389,6 +436,10 @@
             $('#delhi_gst').text((data.total_dgst || 0).toFixed(2));
             $('#cgst').text((data.total_cgst || 0).toFixed(2));
             $('#igst').text((data.total_igst || 0).toFixed(2));
+
+            if (!hasGST) {
+              $('.gst-row').remove();
+            }
 
             // Populate Amount Chargeable
             $('#amount_chargeable').text((data.total_amount || 0).toFixed(2));
