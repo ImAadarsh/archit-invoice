@@ -225,9 +225,23 @@
       }
 
       function generateInvoiceHtml(invoice, index) {
-        var itemsHtml = generateItemsHtml(invoice.items);
-        var addressInfo = formatAddress(invoice.billing_address, invoice.name, invoice.mobile_number);
         var goods_price = 0;
+        var hasGST = false;
+
+        if (invoice.items && invoice.items.length > 0) {
+          hasGST = invoice.items.some(function(item) {
+            return Number(item.gst_rate) > 0;
+          });
+        }
+
+        if (!hasGST) {
+          if ((Number(invoice.total_dgst) || 0) > 0 || (Number(invoice.total_cgst) || 0) > 0 || (Number(invoice.total_igst) || 0) > 0) {
+            hasGST = true;
+          }
+        }
+
+        var itemsHtml = generateItemsHtml(invoice.items, hasGST);
+        var addressInfo = formatAddress(invoice.billing_address, invoice.name, invoice.mobile_number);
         
         // Calculate goods price
         if (invoice.items && invoice.items.length > 0) {
@@ -306,10 +320,10 @@
                           <tr class="tm_accent_bg">
                             <th class="tm_width_1 tm_semi_bold tm_white_color">Sno.</th>
                             <th class="tm_width_3 tm_semi_bold tm_white_color">Item Name</th>
-                            <th class="tm_width_2 tm_semi_bold tm_white_color">HSN</th>
+                            ${hasGST ? '<th class="tm_width_2 tm_semi_bold tm_white_color tm_col_hsn">HSN</th>' : ''}
                             <th class="tm_width_1 tm_semi_bold tm_white_color">Quantity</th>
                             <th class="tm_width_2 tm_semi_bold tm_white_color">Rate</th>
-                            <th class="tm_width_1 tm_semi_bold tm_white_color">GST Rate</th>
+                            ${hasGST ? '<th class="tm_width_1 tm_semi_bold tm_white_color tm_col_gst">GST Rate</th>' : ''}
                             <th class="tm_width_3 tm_semi_bold tm_white_color tm_text_right">Total Value</th>
                           </tr>
                         </thead>
@@ -343,18 +357,19 @@
                             <td class="tm_width_3 tm_primary_color tm_bold">Total Value of Goods:</td>
                             <td class="tm_width_3 tm_primary_color tm_bold tm_text_right">${goods_price.toFixed(2)}</td>
                           </tr>
-                          <tr class="tm_gray_bg">
+                          ${hasGST ? `
+                          <tr class="tm_gray_bg gst-row">
                             <td class="tm_width_5 tm_primary_color">${stateGstLabel}</td>
                             <td class="tm_width_5 tm_primary_color tm_text_right">${(invoice.total_dgst || 0).toFixed(2)}</td>
                           </tr>
-                          <tr class="tm_gray_bg">
+                          <tr class="tm_gray_bg gst-row">
                             <td class="tm_width_5 tm_primary_color">CGST</td>
                             <td class="tm_width_5 tm_primary_color tm_text_right">${(invoice.total_cgst || 0).toFixed(2)}</td>
                           </tr>
-                          <tr class="tm_gray_bg">
+                          <tr class="tm_gray_bg gst-row">
                             <td class="tm_width_5 tm_primary_color">IGST</td>
                             <td class="tm_width_5 tm_primary_color tm_text_right">${(invoice.total_igst || 0).toFixed(2)}</td>
-                          </tr>
+                          </tr>` : ''}
                           <tr class="tm_accent_bg">
                             <td class="tm_width_6 tm_border_top_0 tm_bold tm_white_color">Amount Chargeable</td>
                             <td class="tm_width_5 tm_border_top_0 tm_bold tm_white_color tm_text_right">${(invoice.total_amount || 0).toFixed(2)}</td>
@@ -374,55 +389,80 @@
         `;
       }
 
-      function generateItemsHtml(items) {
+      function generateItemsHtml(items, hasGST) {
         var itemsHtml = '';
         var totalRows = 20; // Maximum number of rows to display
         
         if (items && items.length > 0) {
           items.forEach(function(item, index) {
             var oneprice = item.quantity * item.price_of_one;
-            itemsHtml += `
-              <tr>
-                <td class="tm_width_1">${index + 1}</td>
-                <td class="tm_width_3">${item.product ? item.product.name : 'Unknown Product'}</td>
-                <td class="tm_width_2">${item.product ? item.product.hsn_code : 'N/A'}</td>
-                <td class="tm_width_1">${item.quantity}</td>
-                <td class="tm_width_2">${item.price_of_one.toFixed(2)}</td>
-                <td class="tm_width_1">${item.gst_rate || 0}%</td>
-                <td class="tm_width_3 tm_text_right">${oneprice.toFixed(2)}</td>
-              </tr>
-            `;
+            var rowCells = [
+              `<td class="tm_width_1">${index + 1}</td>`,
+              `<td class="tm_width_3">${item.product ? item.product.name : 'Unknown Product'}</td>`
+            ];
+
+            if (hasGST) {
+              rowCells.push(`<td class="tm_width_2">${item.product && item.product.hsn_code ? item.product.hsn_code : 'N/A'}</td>`);
+            }
+
+            rowCells.push(`<td class="tm_width_1">${item.quantity}</td>`);
+            rowCells.push(`<td class="tm_width_2">${item.price_of_one.toFixed(2)}</td>`);
+
+            if (hasGST) {
+              var gstRate = Number(item.gst_rate) || 0;
+              rowCells.push(`<td class="tm_width_1">${gstRate}%</td>`);
+            }
+
+            rowCells.push(`<td class="tm_width_3 tm_text_right">${oneprice.toFixed(2)}</td>`);
+
+            itemsHtml += `<tr>${rowCells.join('')}</tr>`;
           });
           
           // Add empty rows to fill up to 20 rows total with sequential numbering
           var currentItemCount = items.length;
           for (var i = currentItemCount; i < totalRows; i++) {
-            itemsHtml += `
-              <tr>
-                <td class="tm_width_1">${i + 1}</td>
-                <td class="tm_width_3">&nbsp;</td>
-                <td class="tm_width_2">&nbsp;</td>
-                <td class="tm_width_1">&nbsp;</td>
-                <td class="tm_width_2">&nbsp;</td>
-                <td class="tm_width_1">&nbsp;</td>
-                <td class="tm_width_3 tm_text_right">&nbsp;</td>
-              </tr>
-            `;
+            var emptyCells = [
+              `<td class="tm_width_1">${i + 1}</td>`,
+              '<td class="tm_width_3">&nbsp;</td>'
+            ];
+
+            if (hasGST) {
+              emptyCells.push('<td class="tm_width_2">&nbsp;</td>');
+            }
+
+            emptyCells.push('<td class="tm_width_1">&nbsp;</td>');
+            emptyCells.push('<td class="tm_width_2">&nbsp;</td>');
+
+            if (hasGST) {
+              emptyCells.push('<td class="tm_width_1">&nbsp;</td>');
+            }
+
+            emptyCells.push('<td class="tm_width_3 tm_text_right">&nbsp;</td>');
+
+            itemsHtml += `<tr>${emptyCells.join('')}</tr>`;
           }
         } else {
           // If no items, add 20 empty rows with sequential numbering
           for (var i = 0; i < totalRows; i++) {
-            itemsHtml += `
-              <tr>
-                <td class="tm_width_1">${i + 1}</td>
-                <td class="tm_width_3">&nbsp;</td>
-                <td class="tm_width_2">&nbsp;</td>
-                <td class="tm_width_1">&nbsp;</td>
-                <td class="tm_width_2">&nbsp;</td>
-                <td class="tm_width_1">&nbsp;</td>
-                <td class="tm_width_3 tm_text_right">&nbsp;</td>
-              </tr>
-            `;
+            var emptyCellsNoItems = [
+              `<td class="tm_width_1">${i + 1}</td>`,
+              '<td class="tm_width_3">&nbsp;</td>'
+            ];
+
+            if (hasGST) {
+              emptyCellsNoItems.push('<td class="tm_width_2">&nbsp;</td>');
+            }
+
+            emptyCellsNoItems.push('<td class="tm_width_1">&nbsp;</td>');
+            emptyCellsNoItems.push('<td class="tm_width_2">&nbsp;</td>');
+
+            if (hasGST) {
+              emptyCellsNoItems.push('<td class="tm_width_1">&nbsp;</td>');
+            }
+
+            emptyCellsNoItems.push('<td class="tm_width_3 tm_text_right">&nbsp;</td>');
+
+            itemsHtml += `<tr>${emptyCellsNoItems.join('')}</tr>`;
           }
         }
         
