@@ -1,0 +1,445 @@
+.print-mode .tm_gray_bg {
+    background-color: #f5f6fa !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_ternary_bg {
+    background-color: #b5b5b5 !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_primary_bg {
+    background-color: #111 !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_secondary_bg {
+    background-color: #666 !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_accent_bg {
+    background-color: #1B5F92;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_table tbody tr:nth-child(even) {
+    background-color: #e9ecef !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_table tbody tr:nth-child(odd) {
+    background-color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_invoice .tm_table tbody tr:nth-child(even) {
+    background-color: #e9ecef !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_invoice .tm_table tbody tr:nth-child(odd) {
+    background-color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_invoice_footer .tm_left_footer .tm_white_color {
+    color: #333 !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_invoice_footer .tm_right_footer .tm_white_color {
+    color: #333 !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_invoice_footer .tm_left_footer table tbody tr.tm_accent_bg {
+    background-color: #1B5F92 !important;
+    border: 1px solid #1B5F92 !important;
+    border-radius: 4px !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_invoice_footer .tm_left_footer table tbody tr.tm_accent_bg td {
+    padding: 8px 12px !important;
+    font-weight: 500 !important;
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+  }
+  /* Fix spacing between invoice head and table in print */
+.print-mode .tm_invoice_head.tm_mb10 {
+    margin-bottom: 10px !important;
+  }
+.print-mode .tm_table.tm_style1 {
+    margin-top: 0 !important;
+  }
+  /* Ensure all spacing matches web version exactly */
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_info {
+    padding: 4px 0 !important;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_card_note {
+    margin-bottom: 10px !important;
+  }
+.print-mode .tm_invoice_footer .tm_left_footer {
+    padding: 10px 15px !important;
+  }
+.print-mode .tm_invoice_footer .tm_right_footer table {
+    margin-top: 15px !important;
+  }
+.print-mode .tm_mb15 {
+    margin-bottom: 15px !important;
+  }
+.print-mode .tm_mb25 {
+    margin-bottom: 25px !important;
+  }
+  /* Additional spacing overrides for exact web/print match */
+.print-mode .tm_invoice.tm_style1.tm_type1 {
+    padding: 0px 50px 30px !important;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_head {
+    height: 70px !important;
+    padding: 10px 0 !important;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_logo img {
+    max-height: 45px !important;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_right {
+    padding: 5px 0 !important;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_seperator {
+    min-height: 18px !important;
+    border-radius: 8px !important;
+    background: none !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_seperator img {
+    display: none !important;
+  }
+.print-mode .tm_invoice_footer {
+    margin-top: 0 !important;
+  }
+  /* Fix table width and Total Value column in print */
+.print-mode .tm_table_responsive {
+    overflow: visible !important;
+  }
+.print-mode .tm_table_responsive > table {
+    min-width: auto !important;
+    width: 100% !important;
+  }
+  .tm_table_responsive > table th.tm_width_3:last-child,
+.print-mode .tm_table_responsive > table td.tm_width_3:last-child {
+    width: 20% !important;
+    min-width: 80px !important;
+  }
+  /* Ensure table fits on print page */
+.print-mode .tm_invoice {
+    max-width: 100% !important;
+    overflow: visible !important;
+  }
+.print-mode .tm_table {
+    page-break-inside: avoid !important;
+  }
+.print-mode .tm_accent_bg_10 {
+    background-color: rgba(0, 122, 255, 0.1) !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_accent_bg_20 {
+    background-color: rgba(0, 122, 255, 0.15) !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_white_color {
+    color: #fff !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_accent_color {
+    color: #1B5F92 !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_ternary_color {
+    color: #b5b5b5 !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_hide_print {
+    display: none !important;
+  }
+.print-mode .tm_dark_invoice .tm_gray_bg {
+    background-color: #111 !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_dark_invoice {
+    background: #111 !important;
+    color: rgba(255, 255, 255, 0.65) !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode .tm_dark_invoice .tm_gray_bg {
+    background: rgba(255, 255, 255, 0.05) !important;
+    -webkit-print-color-adjust: exact;
+  }
+.print-mode hr {
+    background: #dbdfea !important;
+    -webkit-print-color-adjust: exact;
+  }
+  .tm_col_4,
+.print-mode .tm_col_4.tm_col_2_md {
+    grid-template-columns: repeat(4, 1fr);
+  }
+.print-mode .tm_col_2_md {
+    grid-template-columns: repeat(2, 1fr);
+  }
+.print-mode .tm_mb1 {
+    margin-bottom: 1px;
+  }
+.print-mode .tm_mb2 {
+    margin-bottom: 2px;
+  }
+.print-mode .tm_mb3 {
+    margin-bottom: 3px;
+  }
+.print-mode .tm_mb4 {
+    margin-bottom: 4px;
+  }
+.print-mode .tm_mb5 {
+    margin-bottom: 5px;
+  }
+.print-mode .tm_mb6 {
+    margin-bottom: 6px;
+  }
+.print-mode .tm_mb7 {
+    margin-bottom: 7px;
+  }
+.print-mode .tm_mb8 {
+    margin-bottom: 8px;
+  }
+.print-mode .tm_mb9 {
+    margin-bottom: 9px;
+  }
+.print-mode .tm_mb10 {
+    margin-bottom: 10px;
+  }
+.print-mode .tm_mb11 {
+    margin-bottom: 11px;
+  }
+.print-mode .tm_mb12 {
+    margin-bottom: 12px;
+  }
+.print-mode .tm_mb13 {
+    margin-bottom: 13px;
+  }
+.print-mode .tm_mb14 {
+    margin-bottom: 14px;
+  }
+.print-mode .tm_mb15 {
+    margin-bottom: 15px;
+  }
+.print-mode .tm_mb16 {
+    margin-bottom: 16px;
+  }
+.print-mode .tm_mb17 {
+    margin-bottom: 17px;
+  }
+.print-mode .tm_mb18 {
+    margin-bottom: 18px;
+  }
+.print-mode .tm_mb19 {
+    margin-bottom: 19px;
+  }
+.print-mode .tm_mb20 {
+    margin-bottom: 20px;
+  }
+.print-mode .tm_mb21 {
+    margin-bottom: 21px;
+  }
+.print-mode .tm_mb22 {
+    margin-bottom: 22px;
+  }
+.print-mode .tm_mb23 {
+    margin-bottom: 23px;
+  }
+.print-mode .tm_mb24 {
+    margin-bottom: 24px;
+  }
+.print-mode .tm_mb25 {
+    margin-bottom: 25px;
+  }
+.print-mode .tm_mb26 {
+    margin-bottom: 26px;
+  }
+.print-mode .tm_mb27 {
+    margin-bottom: 27px;
+  }
+.print-mode .tm_mb28 {
+    margin-bottom: 28px;
+  }
+.print-mode .tm_mb29 {
+    margin-bottom: 29px;
+  }
+.print-mode .tm_mb30 {
+    margin-bottom: 30px;
+  }
+.print-mode .tm_mb40 {
+    margin-bottom: 40px;
+  }
+.print-mode .tm_mobile_hide {
+    display: block;
+  }
+.print-mode .tm_invoice {
+    padding: 10px;
+  }
+.print-mode .tm_invoice .tm_right_footer {
+    width: 42%;
+  }
+.print-mode .tm_invoice_footer {
+    -webkit-box-orient: initial;
+    -webkit-box-direction: initial;
+        -ms-flex-direction: initial;
+            flex-direction: initial;
+  }
+.print-mode .tm_invoice_footer .tm_left_footer {
+    width: 58%;
+    padding: 10px 15px;
+    -webkit-box-flex: 0;
+        -ms-flex: none;
+            flex: none;
+    border-top: none;
+    margin-top: 0px;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_card_note {
+    margin-top: 5px;
+  }
+.print-mode .tm_note.tm_text_center {
+    text-align: center;
+  }
+.print-mode .tm_note.tm_text_center p br {
+    display: initial;
+  }
+.print-mode .tm_invoice_footer.tm_type1 {
+    -webkit-box-orient: initial;
+    -webkit-box-direction: initial;
+        -ms-flex-direction: initial;
+            flex-direction: initial;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_invoice_head {
+    -webkit-box-orient: initial;
+    -webkit-box-direction: initial;
+        -ms-flex-direction: initial;
+            flex-direction: initial;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_invoice_head > .tm_invoice_left {
+    width: 30%;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_invoice_head > .tm_invoice_right {
+    width: 70%;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_invoice_head .tm_invoice_left {
+    margin-bottom: initial;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_invoice_head .tm_text_right {
+    text-align: right;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_invoice_info {
+    -webkit-box-orient: initial;
+    -webkit-box-direction: initial;
+        -ms-flex-direction: initial;
+            flex-direction: initial;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_invoice_info > .tm_invoice_info_left {
+    width: 30%;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_invoice_info > .tm_invoice_info_right {
+    width: 70%;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 {
+    padding: 0px 20px 30px;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_head {
+    height: 110px;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_info {
+    padding: 4px 0;
+    -webkit-box-orient: initial;
+    -webkit-box-direction: initial;
+        -ms-flex-direction: initial;
+            flex-direction: initial;
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_seperator {
+    top: initial;
+    margin-right: 0;
+    border-radius: 0;
+    -webkit-transform: skewX(35deg);
+            transform: skewX(35deg);
+    position: absolute;
+    height: 100%;
+    width: 57.5%;
+    right: -60px;
+    overflow: hidden;
+    border: none;
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_logo img {
+    max-height: 70px;
+  }
+.print-mode .tm_invoice.tm_style2.tm_type1 {
+    border-width: 20px 0 0;
+  }
+.print-mode .tm_invoice.tm_style2.tm_type1 .tm_shape_bg {
+    height: 100%;
+    width: 42%;
+  }
+.print-mode .tm_invoice.tm_style2.tm_type1 .tm_invoice_head .tm_text_center {
+    text-align: center;
+  }
+.print-mode .tm_invoice.tm_style2.tm_type1 .tm_logo {
+    top: initial;
+    margin-bottom: initial;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_invoice_info_in {
+    padding: 12px 20px;
+  }
+.print-mode .tm_invoice.tm_style2 .tm_logo img {
+    max-height: 60px;
+  }
+.print-mode .tm_curve_35 {
+    -webkit-transform: skewX(-35deg);
+            transform: skewX(-35deg);
+    margin-left: 22px;
+    margin-right: 22px;
+  }
+.print-mode .tm_curve_35 > * {
+    -webkit-transform: skewX(35deg);
+            transform: skewX(35deg);
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_seperator {
+    -webkit-transform: skewX(35deg);
+            transform: skewX(35deg);
+  }
+.print-mode .tm_invoice.tm_style1.tm_type1 .tm_invoice_seperator img {
+    -webkit-transform: skewX(-35deg) translateX(-45px);
+            transform: skewX(-35deg) translateX(-45px);
+  }
+.print-mode .tm_section_heading .tm_curve_35 {
+    margin-left: 12px;
+  }
+.print-mode .tm_round_border {
+    border-top-width: 2px;
+  }
+.print-mode .tm_border_left_none_md {
+    border-left-width: 1px;
+  }
+.print-mode .tm_border_right_none_md {
+    border-right-width: 1px;
+  }
+.print-mode .tm_note {
+    margin-top: 10px;
+    font-size: 10px;
+    padding-top: 5px;
+  }
+.print-mode .tm_pagebreak {
+    page-break-before: always;
+  }
+.print-mode .tm_invoice.tm_style3 {
+    padding: 0;
+  }
+.print-mode .tm_invoice.tm_style3 .tm_invoice_info {
+    padding: 0px 15px 40px;
+  }
+.print-mode .tm_invoice.tm_style3 .tm_invoice_details {
+    padding: 0px 15px 50px;
+  }
+.print-mode .tm_invoice.tm_style3 .tm_invoice_head {
+    padding: 60px 15px;
+  }
+.print-mode .tm_invoice.tm_style3 .tm_watermark_title {
+    letter-spacing: 5px;
+    font-size: 150px;
+    padding: 27px 15px 27px 15px;
+  }
