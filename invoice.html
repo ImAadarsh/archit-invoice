@@ -359,10 +359,15 @@
             $('#payment_method').text(data.payment_mode || 'Not specified');
             $('#invoice_date').text(data.invoice_date ? new Date(data.invoice_date).toLocaleDateString() : 'Not specified');
 
-            // Populate Invoice To and Billed To
-            var addressInfo = formatAddress(data.billing_address, data.name, data.mobile_number);
-            $('#invoice_to').html(addressInfo);
-            $('#billed_to').html(addressInfo);
+            // Populate Ship To and Billed To
+            var shippingAddressInfo = formatAddress(
+              data.shipping_address || data.billing_address,
+              data.name,
+              data.mobile_number
+            );
+            var billingAddressInfo = formatAddress(data.billing_address, data.name, data.mobile_number);
+            $('#billed_to').html(shippingAddressInfo);
+            $('#invoice_to').html(billingAddressInfo);
 
             // Populate Item Details
             var itemDetailsHtml = '';
