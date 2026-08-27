@@ -301,6 +301,102 @@
       return formattedAddress;
     }
 
+    function isWebsiteOrderInvoice(data) {
+      return data.website_order_id != null && data.website_order_id !== '';
+    }
+
+    /**
+     * Website orders: total_amount is GST-inclusive (product + shipping).
+     * Display base = total_amount / (1 + gst_rate%), so goods + GST = amount chargeable.
+     */
+    function getWebsiteOrderDisplay(data, hasGST) {
+      var chargeable = Number(data.total_amount) || 0;
+      if (!isWebsiteOrderInvoice(data) || chargeable <= 0) {
+        return null;
+      }
+
+      var items = data.items || [];
+      if (!items.length) {
+        return null;
+      }
+
+      var gstRate = 0;
+      items.forEach(function (item) {
+        var rate = Number(item.gst_rate) || 0;
+        if (rate > gstRate) {
+          gstRate = rate;
+        }
+      });
+
+      if (!hasGST || gstRate <= 0) {
+        var flatBases = items.map(function (item) {
+          var lineBase = chargeable / items.length;
+          return {
+            basePerUnit: item.quantity > 0 ? lineBase / item.quantity : lineBase,
+            lineBase: lineBase
+          };
+        });
+        return {
+          goodsPrice: chargeable,
+          dgst: 0,
+          cgst: 0,
+          igst: 0,
+          itemBases: flatBases
+        };
+      }
+
+      var goodsPrice = chargeable / (1 + gstRate / 100);
+      goodsPrice = Math.round(goodsPrice * 100) / 100;
+      var totalGst = Math.round((chargeable - goodsPrice) * 100) / 100;
+
+      var usesIgst = (Number(data.total_igst) || 0) > 0 ||
+        ((Number(data.total_dgst) || 0) === 0 && (Number(data.total_cgst) || 0) === 0);
+
+      var dgst = 0;
+      var cgst = 0;
+      var igst = 0;
+      if (usesIgst) {
+        igst = totalGst;
+      } else {
+        dgst = Math.round(totalGst * 50) / 100;
+        cgst = totalGst - dgst;
+      }
+
+      var apiGoodsSum = 0;
+      items.forEach(function (item) {
+        apiGoodsSum += item.quantity * Number(item.price_of_one);
+      });
+
+      var itemBases = items.map(function (item, index) {
+        var apiLineBase = item.quantity * Number(item.price_of_one);
+        var lineBase = apiGoodsSum > 0
+          ? Math.round(goodsPrice * (apiLineBase / apiGoodsSum) * 100) / 100
+          : Math.round(goodsPrice / items.length * 100) / 100;
+        return {
+          basePerUnit: item.quantity > 0 ? lineBase / item.quantity : lineBase,
+          lineBase: lineBase
+        };
+      });
+
+      var sumLines = itemBases.reduce(function (sum, row) {
+        return sum + row.lineBase;
+      }, 0);
+      if (itemBases.length && sumLines !== goodsPrice) {
+        var last = itemBases[itemBases.length - 1];
+        last.lineBase = Math.round((last.lineBase + (goodsPrice - sumLines)) * 100) / 100;
+        var lastQty = items[itemBases.length - 1].quantity;
+        last.basePerUnit = lastQty > 0 ? last.lineBase / lastQty : last.lineBase;
+      }
+
+      return {
+        goodsPrice: goodsPrice,
+        dgst: dgst,
+        cgst: cgst,
+        igst: igst,
+        itemBases: itemBases
+      };
+    }
+
     // Fetch data from API and populate HTML
     $(document).ready(function () {
       // Extract invoice ID from page URL
@@ -390,9 +486,18 @@
               $('.tm_col_gst').remove();
             }
 
+            var websiteDisplay = getWebsiteOrderDisplay(data, hasGST);
+
             if (data.items && data.items.length > 0) {
               data.items.forEach(function (item, index) {
-                var oneprice = item.quantity * item.price_of_one;
+                var displayBasePerUnit = Number(item.price_of_one);
+                var oneprice = item.quantity * displayBasePerUnit;
+
+                if (websiteDisplay && websiteDisplay.itemBases[index]) {
+                  displayBasePerUnit = websiteDisplay.itemBases[index].basePerUnit;
+                  oneprice = websiteDisplay.itemBases[index].lineBase;
+                }
+
                 goods_price += oneprice;
                 var rowCells = [
                   '<td class="tm_width_1">' + (index + 1) + '</td>',
@@ -404,7 +509,7 @@
                 }
 
                 rowCells.push('<td class="tm_width_1">' + item.quantity + '</td>');
-                rowCells.push('<td class="tm_width_2">' + item.price_of_one.toFixed(2) + '</td>');
+                rowCells.push('<td class="tm_width_2">' + displayBasePerUnit.toFixed(2) + '</td>');
 
                 if (hasGST) {
                   var gstRate = Number(item.gst_rate) || 0;
@@ -466,6 +571,9 @@
             $('#item_details').html(itemDetailsHtml);
 
             // Populate Total Value of Goods
+            if (websiteDisplay) {
+              goods_price = websiteDisplay.goodsPrice;
+            }
             $('#total_value_of_goods').text(goods_price.toFixed(2));
 
             // Update State GST label with location state name
@@ -474,9 +582,12 @@
             }
 
             // Populate GST values
-            $('#delhi_gst').text((data.total_dgst || 0).toFixed(2));
-            $('#cgst').text((data.total_cgst || 0).toFixed(2));
-            $('#igst').text((data.total_igst || 0).toFixed(2));
+            var displayDgst = websiteDisplay ? websiteDisplay.dgst : (data.total_dgst || 0);
+            var displayCgst = websiteDisplay ? websiteDisplay.cgst : (data.total_cgst || 0);
+            var displayIgst = websiteDisplay ? websiteDisplay.igst : (data.total_igst || 0);
+            $('#delhi_gst').text(Number(displayDgst).toFixed(2));
+            $('#cgst').text(Number(displayCgst).toFixed(2));
+            $('#igst').text(Number(displayIgst).toFixed(2));
 
             if (!hasGST) {
               $('.gst-row').remove();
